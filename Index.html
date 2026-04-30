@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheHandOfXpressions | Bantse's Pencil</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, onSnapshot, query, serverTimestamp, increment, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bantse-pencil-art';
+
+        window.fb = { auth, db, appId, collection, addDoc, updateDoc, onSnapshot, query, serverTimestamp, increment, doc, setDoc, deleteDoc, signInAnonymously, signInWithCustomToken, onAuthStateChanged };
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .scroll-smooth { scroll-behavior: smooth; }
+        .modal-container { opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 100; }
+        .modal-container.show { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-container.show .modal-content { transform: translateY(0); }
+        .page-view { transition: opacity 0.4s ease, transform 0.4s ease; display: block; }
+        .hidden-page { display: none !important; opacity: 0; transform: translateY(10px); }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .animate-pulse-live { animation: pulse-red 2s infinite; }
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background-color: #e5e5e5; border-radius: 20px; }
+    </style>
+</head>
+
+<body class="bg-neutral-50 text-neutral-900 overflow-x-hidden scroll-smooth">
+
+    <!-- PERMISSION BANNER -->
+    <div id="alertPermissionBanner" class="hidden bg-black text-white px-4 py-3 flex flex-col sm:flex-row justify-between items-center z-[110] relative gap-2 text-center sm:text-left">
+        <span class="text-xs font-bold uppercase tracking-widest text-neutral-300">Allow Bantse's Pencil to send you live alerts?</span>
+        <div class="flex gap-2 w-full sm:w-auto justify-center">
+            <button onclick="setAlertPermission(false)" class="text-neutral-400 px-4 py-2 text-[10px] font-black uppercase tracking-widest active:scale-95">No Thanks</button>
+            <button onclick="setAlertPermission(true)" class="bg-white text-black px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest active:scale-95">Allow</button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-20 left-1/2 -translate-x-1/2 z-[150] flex flex-col gap-3 w-[90%] max-w-sm pointer-events-none"></div>
+
+    <!-- NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-neutral-100 px-4">
+        <div class="max-w-7xl w-full py-4 flex justify-between items-center mx-auto">
+            <h1 onclick="navigateTo('home')" class="text-lg font-black tracking-tighter flex items-center gap-2 cursor-pointer">
+                <i data-lucide="pencil" class="w-5 h-5 text-neutral-900"></i> BANTSE'S PENCIL
+            </h1>
+            <div class="flex items-center gap-3">
+                <button id="liveBadge" onclick="navigateTo('live')" class="hidden flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-full animate-pulse-live">
+                    <span class="w-2 h-2 bg-red-600 rounded-full"></span>
+                    <span class="text-[10px] font-black uppercase tracking-widest">LIVE</span>
+                </button>
+                <button onclick="navigateTo('community')" class="text-[10px] font-black uppercase tracking-widest hover:text-neutral-500 hidden sm:block text-neutral-400">Community</button>
+                <button onclick="navigateTo('gallery')" class="text-[10px] font-black uppercase tracking-widest hover:text-neutral-500 text-neutral-900">Gallery</button>
+                <div class="flex items-center gap-2 text-[10px] font-bold text-neutral-400 border-l border-neutral-200 pl-3">
+                    <i data-lucide="frame" class="w-3 h-3 text-green-500"></i> FRAMED
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOME PAGE -->
+    <main id="homePage" class="page-view">
+        <section class="py-12 px-4 text-center max-w-5xl mx-auto">
+            <h2 class="text-[8.5vw] sm:text-6xl md:text-8xl font-black mb-4 tracking-tighter uppercase leading-none hover:scale-[1.02] cursor-default text-neutral-900">TheHandOfXpressions</h2>
+            <p class="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-10">Realistic Pencil Catalog • Professional Framing Included</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 px-4">
+                <a href="#sizes" class="w-full sm:w-auto bg-black text-white px-10 py-4 rounded-2xl font-black text-sm active:scale-95 shadow-xl uppercase">Order Now</a>
+                <button onclick="navigateTo('gallery')" class="w-full sm:w-auto bg-white border-2 border-neutral-200 text-black px-10 py-4 rounded-2xl font-black text-sm active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4 text-neutral-900"></i> THE GALLERY
+                </button>
+                <button onclick="navigateTo('community')" class="w-full sm:w-auto bg-neutral-100 text-black px-10 py-4 rounded-2xl font-black text-sm active:scale-95 flex items-center justify-center gap-2 text-neutral-900">
+                    <i data-lucide="users" class="w-4 h-4 text-neutral-900"></i> COMMUNITY
+                </button>
+            </div>
+        </section>
+
+        <!-- SIZES -->
+        <section id="sizes" class="py-8 bg-white px-4">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div onclick="openOrderModal('A4', 480, 580, 540, 680)" class="group bg-neutral-50 rounded-3xl p-6 border-2 border-transparent hover:border-black active:scale-[0.98] cursor-pointer shadow-sm">
+                    <span class="bg-black text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">A4</span>
+                    <h4 class="font-black text-2xl uppercase mt-4 text-neutral-900">A4 Portrait</h4>
+                    <div class="border-t border-neutral-200 pt-4 mt-4 flex justify-between text-xs font-bold text-neutral-900">
+                        <span>B&W R480</span><span>COLOR R580</span>
+                    </div>
+                </div>
+                <div onclick="openOrderModal('A3', 680, 780, 740, 880)" class="group bg-neutral-50 rounded-3xl p-6 border-2 border-transparent hover:border-black active:scale-[0.98] cursor-pointer shadow-sm">
+                    <span class="bg-black text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">A3</span>
+                    <h4 class="font-black text-2xl uppercase mt-4 text-neutral-900">A3 Portrait</h4>
+                    <div class="border-t border-neutral-200 pt-4 mt-4 flex justify-between text-xs font-bold text-neutral-900">
+                        <span>B&W R680</span><span>COLOR R780</span>
+                    </div>
+                </div>
+                <div onclick="openOrderModal('A2', 1400, 1700, 1800, 2000)" class="group bg-neutral-50 rounded-3xl p-6 border-2 border-transparent hover:border-black active:scale-[0.98] cursor-pointer shadow-sm">
+                    <span class="bg-black text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">A2</span>
+                    <h4 class="font-black text-2xl uppercase mt-4 text-neutral-900">A2 Portrait</h4>
+                    <div class="border-t border-neutral-200 pt-4 mt-4 flex justify-between text-xs font-bold text-neutral-900">
+                        <span>B&W R1400</span><span>COLOR R1700</span>
+                    </div>
+                </div>
+                <div onclick="openOrderModal('A1', 2700, 2900, 3100, 3400)" class="group bg-neutral-50 rounded-3xl p-6 border-2 border-transparent hover:border-black active:scale-[0.98] cursor-pointer shadow-sm">
+                    <span class="bg-black text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">A1</span>
+                    <h4 class="font-black text-2xl uppercase mt-4 text-neutral-900">A1 Portrait</h4>
+                    <div class="border-t border-neutral-200 pt-4 mt-4 flex justify-between text-xs font-bold text-neutral-900">
+                        <span>B&W R2700</span><span>COLOR R2900</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDESHOW -->
+        <section class="py-8 bg-white px-4">
+            <div class="max-w-6xl mx-auto rounded-[2.5rem] overflow-hidden relative aspect-video bg-neutral-100 shadow-sm border border-neutral-100">
+                <div id="slideshow" class="w-full h-full relative"></div>
+                <div class="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-20 flex items-center gap-2 text-neutral-900">
+                    <span class="w-2 h-2 bg-black rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Featured Works</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- GALLERY PAGE -->
+    <main id="galleryPage" class="page-view hidden-page text-neutral-900">
+        <section class="py-12 px-4 max-w-6xl mx-auto min-h-screen">
+            <div class="flex items-center justify-between mb-12">
+                <button onclick="navigateTo('home')" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-black">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i> Back Home
+                </button>
+                <h3 class="text-4xl font-black uppercase tracking-tighter text-neutral-900">The Gallery</h3>
+            </div>
+            
+            <div id="dynamicGalleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- ADDED STATIC IMAGES DIRECTLY IN HTML SO THEY LOAD INSTANTLY -->
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339383702.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339469022.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339475230.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339483007.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339520307.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="FB_IMG_1777339488462.jpg" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- COMMUNITY PAGE -->
+    <main id="communityPage" class="page-view hidden-page text-neutral-900">
+        <section class="py-12 px-4 max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-12">
+                <button onclick="navigateTo('home')" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-black">
+                    <i data-lucide="arrow-left" class="w-3 h-3 text-neutral-400"></i> Back Home
+                </button>
+                <h3 class="text-4xl font-black uppercase tracking-tighter text-neutral-900">Community Hub</h3>
+            </div>
+
+            <div id="dropZone" class="w-full max-w-2xl mx-auto bg-white border-4 border-dashed border-neutral-200 rounded-[2.5rem] p-8 sm:p-12 text-center transition-all hover:border-black cursor-pointer flex flex-col items-center justify-center mb-8">
+                <i data-lucide="upload-cloud" class="w-12 h-12 text-neutral-300 mb-4 pointer-events-none"></i>
+                <h4 class="text-xl font-black uppercase tracking-tighter mb-2 pointer-events-none text-neutral-900">Share Your Artwork</h4>
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4">Select an image to post to the live memory</p>
+                <input type="file" id="fileInput" accept="image/*" class="hidden" />
+                <button onclick="document.getElementById('fileInput').click()" class="bg-black text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition-all shadow-lg">Select Image</button>
+            </div>
+
+            <div id="communityArtGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20"></div>
+        </section>
+
+        <!-- CHAT -->
+        <section class="py-12 px-4 max-w-2xl mx-auto border-t border-neutral-100 pb-40">
+            <div class="flex items-center gap-2 mb-8">
+                <i data-lucide="message-circle" class="w-6 h-6 text-neutral-900"></i>
+                <h3 class="text-2xl font-black uppercase tracking-tighter text-neutral-900">Live Chat</h3>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-neutral-100 mb-8 space-y-4">
+                <input id="chatName" placeholder="Your Name" class="w-full bg-neutral-50 px-4 py-3 rounded-xl outline-none font-bold text-sm border border-transparent focus:border-black text-neutral-900">
+                <div class="flex gap-2">
+                    <input id="chatMsg" placeholder="Say something..." class="flex-1 bg-neutral-50 px-4 py-3 rounded-xl outline-none font-bold text-sm border border-transparent focus:border-black text-neutral-900">
+                    <button onclick="postComment()" class="bg-black text-white p-3 rounded-xl active:scale-90 shadow-lg"><i data-lucide="send" class="w-5 h-5 text-white"></i></button>
+                </div>
+            </div>
+            <div id="commentsList" class="space-y-6"></div>
+        </section>
+    </main>
+
+    <!-- LIVE PAGE -->
+    <main id="livePage" class="page-view hidden-page">
+        <section class="py-12 px-4 max-w-4xl mx-auto min-h-screen">
+            <div class="bg-black aspect-video rounded-[2.5rem] flex items-center justify-center relative overflow-hidden shadow-2xl border-4 border-white">
+                <div id="noLiveMessage" class="text-center">
+                    <i data-lucide="video-off" class="w-12 h-12 text-neutral-800 mx-auto mb-4"></i>
+                    <h4 class="text-white font-black uppercase text-xl text-white">Artist is Offline</h4>
+                </div>
+                <div id="liveStreamContainer" class="hidden absolute inset-0 bg-neutral-900 flex items-center justify-center font-black text-2xl uppercase tracking-tighter text-white">
+                    Live Pencil Session
+                </div>
+            </div>
+            <div class="mt-10 text-center">
+                <button onclick="toggleLiveStatus()" class="bg-black text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase active:scale-95">Toggle Live Status</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ORDER MODAL -->
+    <div id="orderModal" class="fixed inset-0 modal-container text-neutral-900">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] p-6 sm:p-8 modal-content shadow-2xl max-h-[90vh] overflow-y-auto modal-scroll pb-safe">
+            <div class="flex justify-between items-center mb-6 text-neutral-900">
+                <h3 id="modalTitle" class="text-2xl font-black uppercase tracking-tight leading-none">Order Details</h3>
+                <button onclick="closeModal()" class="p-2 bg-neutral-100 rounded-full active:scale-90"><i data-lucide="x" class="w-5 h-5 text-neutral-400"></i></button>
+            </div>
+            <div class="space-y-4 text-neutral-900">
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnBW" onclick="setStyle('bw')" class="py-3 sm:py-4 rounded-xl font-bold border-2 active:scale-[0.97] text-sm transition-all text-neutral-900">B&W</button>
+                    <button id="btnColor" onclick="setStyle('color')" class="py-3 sm:py-4 rounded-xl font-bold border-2 active:scale-[0.97] text-sm transition-all text-neutral-900">COLOR</button>
+                </div>
+                <button id="btnExtra" onclick="toggleExtra()" class="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all text-neutral-900">
+                    <span class="text-sm font-bold">2 People / Complex</span><i data-lucide="users" class="w-4 h-4"></i>
+                </button>
+                <button id="btnVideo" onclick="toggleVideo()" class="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all text-neutral-900">
+                    <span class="text-sm font-bold">Time-lapse Video (+R50)</span><i data-lucide="video" class="w-4 h-4 text-neutral-900"></i>
+                </button>
+                
+                <input type="text" id="custName" placeholder="Your Full Name" class="w-full bg-neutral-100 p-4 rounded-xl outline-none font-bold text-sm border-2 border-transparent focus:border-black text-neutral-900">
+                <input type="email" id="custEmail" placeholder="Your Email Address" class="w-full bg-neutral-100 p-4 rounded-xl outline-none font-bold text-sm border-2 border-transparent focus:border-black text-neutral-900">
+                
+                <div class="bg-neutral-100 p-5 rounded-2xl border-2 border-dashed border-neutral-200 mt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-neutral-400">Payment Details (Capitec)</span>
+                        <div class="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md shadow-sm border border-neutral-200">
+                            <i data-lucide="landmark" class="w-3 h-3 text-blue-500"></i>
+                            <span class="text-[9px] font-black uppercase text-neutral-900">Direct EFT</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-sm font-black uppercase text-neutral-900">BANTSE MAMPANA</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-lg font-black tracking-tighter text-neutral-900" id="accDisplay">2482750098</p>
+                            <button onclick="copyAcc()" class="bg-white text-[10px] font-black uppercase px-3 py-1.5 rounded-lg border border-neutral-200 shadow-sm active:scale-95 flex items-center gap-1.5 transition-all hover:bg-neutral-50">
+                                <i data-lucide="copy" class="w-3 h-3 text-neutral-900"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[9px] font-bold text-neutral-400 mt-3 uppercase tracking-tighter">* Send proof of payment via WhatsApp after ordering.</p>
+                </div>
+
+                <div class="pt-4 border-t flex flex-col gap-4 bg-neutral-50 p-6 rounded-2xl text-neutral-900">
+                    <div class="flex justify-between items-center text-neutral-900">
+                        <p class="text-[10px] font-bold text-neutral-400 uppercase">Estimated Total</p>
+                        <p id="totalDisplay" class="text-3xl font-black tracking-tighter">R0</p>
+                    </div>
+                    <div class="flex gap-2 w-full">
+                        <button onclick="submitOrder()" class="flex-1 bg-[#25D366] text-white px-6 py-4 rounded-xl font-black flex items-center justify-center gap-2 active:scale-95 text-sm shadow-xl uppercase">WhatsApp Order</button>
+                        <button onclick="submitOrderEmail()" class="flex-1 bg-black text-white px-6 py-4 rounded-xl font-black flex items-center justify-center gap-2 active:scale-95 text-sm shadow-xl uppercase">Email Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="py-12 bg-neutral-50 border-t border-neutral-100 text-center">
+        <p class="text-[10px] font-bold text-neutral-300 uppercase tracking-[0.3em]">Bantse's Pencil &copy; 2026</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // --- MASTER PORTFOLIO IMAGES ---
+        const staticImgs = [
+            "FB_IMG_1777339383702.jpg", 
+            "FB_IMG_1777339469022.jpg", 
+            "FB_IMG_1777339475230.jpg",
+            "FB_IMG_1777339483007.jpg", 
+            "FB_IMG_1777339520307.jpg", 
+            "FB_IMG_1777339488462.jpg"
+        ];
+
+        // --- COOKIE & MEMORY ENGINE ---
+        function checkCookieConsent() {
+            const savedName = localStorage.getItem('bantseArtistName');
+            const savedEmail = localStorage.getItem('bantseEmail');
+            if (savedName) {
+                if(document.getElementById('artArtistName')) document.getElementById('artArtistName').value = savedName;
+                if(document.getElementById('chatName')) document.getElementById('chatName').value = savedName;
+                if(document.getElementById('custName')) document.getElementById('custName').value = savedName;
+            }
+            if (savedEmail) {
+                if(document.getElementById('custEmail')) document.getElementById('custEmail').value = savedEmail;
+            }
+        }
+
+        function showToast(message, actionText, actionFn) {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = "bg-white border border-neutral-200 rounded-[1.5rem] p-4 shadow-2xl flex items-center justify-between gap-4 transform -translate-y-[150%] transition-all duration-500 opacity-0 pointer-events-auto";
+            toast.innerHTML = `<p class="font-black text-sm uppercase text-neutral-800">${message}</p>${actionText ? `<button onclick="${actionFn}; this.parentElement.remove();" class="bg-black text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase shadow-md">${actionText}</button>` : ''}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('-translate-y-[150%]', 'opacity-0'), 100);
+            setTimeout(() => { toast.classList.add('-translate-y-[150%]', 'opacity-0'); setTimeout(() => toast.remove(), 500); }, 6000);
+        }
+
+        function navigateTo(pageId) {
+            ['homePage', 'galleryPage', 'communityPage', 'livePage'].forEach(p => {
+                const el = document.getElementById(p);
+                if(el) el.classList.add('hidden-page');
+            });
+            const target = document.getElementById(pageId + 'Page');
+            if(target) target.classList.remove('hidden-page');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        let currentUserId = null;
+        let lastPostCount = -1;
+
+        window.addEventListener('load', async () => {
+            checkCookieConsent();
+            const checkFB = setInterval(async () => {
+                if (window.fb) {
+                    clearInterval(checkFB);
+                    const { auth, signInAnonymously, onAuthStateChanged } = window.fb;
+                    await signInAnonymously(auth);
+                    onAuthStateChanged(auth, u => { 
+                        currentUserId = u?.uid; 
+                        if(currentUserId) { initSync(); } 
+                    });
+                }
+            }, 100);
+            initSlideshow();
+        });
+
+        function initSync() {
+            const { db, appId, onSnapshot, collection, query, doc } = window.fb;
+            const artCol = collection(db, 'artifacts', appId, 'public', 'data', 'community_art');
+            onSnapshot(query(artCol), (snap) => {
+                const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                if (lastPostCount !== -1 && snap.docs.length > lastPostCount) {
+                    showToast("Memory Updated: New Art Shared!", "View", "navigateTo('gallery')");
+                }
+                lastPostCount = snap.docs.length;
+                renderArt(data);
+            });
+            const chatCol = collection(db, 'artifacts', appId, 'public', 'data', 'comments');
+            onSnapshot(query(chatCol), (snap) => renderComments(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+        }
+
+        async function postCommunityArt(url) {
+            const nameInput = document.getElementById('artArtistName');
+            const name = nameInput ? nameInput.value || "Guest Artist" : "Guest Artist";
+            localStorage.setItem('bantseArtistName', name);
+            const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'community_art'), { 
+                artistName: name, imageUrl: url, createdAt: serverTimestamp(), userId: currentUserId 
+            });
+        }
+
+        async function postComment() {
+            const nameInput = document.getElementById('chatName');
+            const msgInput = document.getElementById('chatMsg');
+            const name = nameInput ? nameInput.value || "Visitor" : "Visitor";
+            const text = msgInput ? msgInput.value : "";
+            if (!text || !currentUserId) return;
+            localStorage.setItem('bantseArtistName', name);
+            const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), { 
+                author: name, text, createdAt: serverTimestamp(), userId: currentUserId 
+            });
+            if(msgInput) msgInput.value = '';
+        }
+
+        async function deleteItem(colName, id) {
+            const { db, appId, deleteDoc, doc } = window.fb;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', colName, id));
+        }
+
+        function renderArt(dynamicAll) {
+            const sorted = dynamicAll.sort((a, b) => (b.createdAt?.toMillis() || Date.now()) - (a.createdAt?.toMillis() || Date.now()));
+            
+            // Community Grid
+            const commGrid = document.getElementById('communityArtGrid');
+            if(commGrid) commGrid.innerHTML = sorted.map(art => `
+                <div class="bg-white rounded-[2rem] p-4 shadow-sm border border-neutral-100 group">
+                    <div class="aspect-square bg-neutral-100 rounded-2xl overflow-hidden mb-4">
+                        <img src="${art.imageUrl}" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform">
+                    </div>
+                    <div class="flex justify-between items-center px-2">
+                        <div><p class="text-[9px] font-black text-neutral-400 uppercase">Artist</p><p class="text-sm font-bold text-neutral-900">${art.artistName}</p></div>
+                        ${art.userId === currentUserId ? `<button onclick="deleteItem('community_art','${art.id}')" class="text-red-400 p-2 hover:bg-red-50 rounded-xl transition-colors"><i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i></button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Full Gallery Grid (Portfolio + Memory)
+            const staticHtml = staticImgs.map(u => `
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="${u}" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'">
+                </div>
+            `).join('');
+            const dynamicHtml = sorted.map(art => `
+                <div class="aspect-square bg-neutral-100 rounded-3xl overflow-hidden group">
+                    <img src="${art.imageUrl}" class="w-full h-full object-cover group-hover:scale-110 duration-700 transition-transform">
+                </div>
+            `).join('');
+            
+            const gallGrid = document.getElementById('dynamicGalleryGrid');
+            if(gallGrid) gallGrid.innerHTML = staticHtml + dynamicHtml;
+            lucide.createIcons();
+        }
+
+        function renderComments(all) {
+            const sorted = all.sort((a, b) => (b.createdAt?.toMillis() || Date.now()) - (a.createdAt?.toMillis() || Date.now()));
+            const list = document.getElementById('commentsList');
+            if(list) list.innerHTML = sorted.map(c => `
+                <div class="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm flex justify-between items-center transition-all animate-in fade-in text-neutral-900">
+                    <div><p class="text-[9px] font-black text-neutral-400 uppercase">${c.author}</p><p class="text-sm font-bold text-neutral-700">${c.text}</p></div>
+                    ${c.userId === currentUserId ? `<button onclick="deleteItem('comments','${c.id}')" class="text-neutral-300 hover:text-red-500 transition-colors p-2"><i data-lucide="x" class="w-4 h-4 text-neutral-400"></i></button>` : ''}
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function copyAcc() {
+            const acc = "2482750098";
+            const el = document.createElement('textarea');
+            el.value = acc;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("Account Number Copied!", null, null);
+        }
+
+        // --- SLIDESHOW ENGINE ---
+        const slideUrls = [
+            "FB_IMG_1777339488462.jpg",
+            "FB_IMG_1777339520307.jpg",
+            "FB_IMG_1777339469022.jpg",
+            "FB_IMG_1777339483007.jpg"
+        ];
+        let curS = 0;
+        function initSlideshow() {
+            const c = document.getElementById('slideshow');
+            if(!c) return;
+            c.innerHTML = slideUrls.map((u, i) => `<img src="${u}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i===0?'opacity-100 z-10':'opacity-0 z-0'}" id="s-${i}" onerror="this.src='https://placehold.co/800x400/eee/999?text=Art'">`).join('');
+            setInterval(() => {
+                const old = document.getElementById(`s-${curS}`);
+                if(old) { old.classList.replace('opacity-100', 'opacity-0'); old.classList.replace('z-10', 'z-0'); }
+                curS = (curS + 1) % slideUrls.length;
+                const next = document.getElementById(`s-${curS}`);
+                if(next) { next.classList.replace('opacity-0', 'opacity-100'); next.classList.replace('z-0', 'z-10'); }
+            }, 4000);
+        }
+
+        let currentOrder = { size: '', bwPrice: 0, colorPrice: 0, bwExtra: 0, colorExtra: 0, style: 'bw', isExtra: false, hasVideo: false };
+        function openOrderModal(size, bw, color, bwe, colore) {
+            currentOrder = { size, bwPrice: bw, colorPrice: color, bwExtra: bwe, colorExtra: colore, style: 'bw', isExtra: false, hasVideo: false };
+            const title = document.getElementById('modalTitle');
+            if(title) title.innerText = size + " Portrait Order";
+            updateUI();
+            const modal = document.getElementById('orderModal');
+            if(modal) modal.classList.add('show');
+        }
+        function closeModal() { const m = document.getElementById('orderModal'); if(m) m.classList.remove('show'); }
+        function setStyle(s) { currentOrder.style = s; updateUI(); }
+        function toggleExtra() { currentOrder.isExtra = !currentOrder.isExtra; updateUI(); }
+        function toggleVideo() { currentOrder.hasVideo = !currentOrder.hasVideo; updateUI(); }
+        function updateUI() {
+            const isBW = currentOrder.style === 'bw';
+            const bwB = document.getElementById('btnBW'), clB = document.getElementById('btnColor'), exB = document.getElementById('btnExtra'), viB = document.getElementById('btnVideo');
+            if(bwB) bwB.className = `py-3 sm:py-4 rounded-xl font-bold border-2 transition-all text-sm ${isBW ? 'border-black bg-black text-white' : 'border-neutral-100 bg-neutral-50 text-neutral-400'}`;
+            if(clB) clB.className = `py-3 sm:py-4 rounded-xl font-bold border-2 transition-all text-sm ${!isBW ? 'border-black bg-black text-white' : 'border-neutral-100 bg-neutral-50 text-neutral-400'}`;
+            if(exB) exB.className = `w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${currentOrder.isExtra ? 'border-black bg-white text-black' : 'border-neutral-100 bg-neutral-50 text-neutral-400'}`;
+            if(viB) viB.className = `w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${currentOrder.hasVideo ? 'border-black bg-white text-black' : 'border-neutral-100 bg-neutral-50 text-neutral-400'}`;
+            let base = isBW ? (currentOrder.isExtra ? currentOrder.bwExtra : currentOrder.bwPrice) : (currentOrder.isExtra ? currentOrder.colorExtra : currentOrder.colorPrice);
+            const td = document.getElementById('totalDisplay');
+            if(td) td.innerText = `R${base + (currentOrder.hasVideo ? 50 : 0)}`;
+        }
+        function submitOrder() {
+            const n = document.getElementById('custName').value, e = document.getElementById('custEmail').value;
+            if (!n) return alert("Enter Name!");
+            localStorage.setItem('bantseArtistName', n); localStorage.setItem('bantseEmail', e);
+            const msg = `*NEW ORDER*%0A*Customer:* ${n}%0A*Email:* ${e}%0A*Size:* ${currentOrder.size}%0A*Total:* ${document.getElementById('totalDisplay').innerText}%0A*Bank:* Capitec (Acc No. 2482750098)`;
+            window.open(`https://wa.me/27693944083?text=${msg}`, '_blank');
+        }
+        async function submitOrderEmail() {
+            const n = document.getElementById('custName').value, e = document.getElementById('custEmail').value;
+            if (!n || !e) return alert("Enter Name and Email!");
+            localStorage.setItem('bantseArtistName', n); localStorage.setItem('bantseEmail', e);
+            const formData = { Customer: n, Email: e, Size: currentOrder.size, Total: document.getElementById('totalDisplay').innerText, Bank: "Capitec" };
+            try { await fetch("https://formspree.io/f/myklqqld", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) }); alert("Order details sent via Email!"); closeModal(); } catch (err) {}
+        }
+        document.getElementById('fileInput').addEventListener('change', function() {
+            if (this.files.length) {
+                const r = new FileReader();
+                r.onload = (e) => { postCommunityArt(e.target.result); };
+                r.readAsDataURL(this.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
