@@ -10,324 +10,360 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <!-- Firebase Cloud System -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bantse-pencil-art';
+
+        window.fb = { auth, db, appId, collection, addDoc, onSnapshot, query, serverTimestamp, signInAnonymously };
+    </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        body { font-family: 'Inter', sans-serif; }
-        .font-serif { font-family: 'Playfair Display', serif; }
-        .scroll-smooth { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #0a0a0a; 
+            color: #f5f5f4; 
+        }
+        .font-display { font-family: 'Cinzel', serif; }
         
         /* Modal Transitions */
         .modal-container { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100; }
         .modal-container.show { opacity: 1; pointer-events: auto; }
-        .modal-content { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-content { transform: translateY(50px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-container.show .modal-content { transform: translateY(0); }
-        @media (min-width: 640px) {
-            .modal-content { transform: translateY(50px); }
+        
+        /* Premium Obsidian & Gold Frame */
+        .frame-style { 
+            border: 12px solid #141414; 
+            outline: 1px solid #d4af6a;
+            padding: 10px; 
+            background: #1a1a1a; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 50px rgba(212,175,106,0.05); 
         }
 
-        /* View Fading */
-        #mainContainer { transition: opacity 0.3s ease-in-out; }
-        
-        /* Slide & Fade Utilities */
-        .slide-down { transform: translateY(-20px); opacity: 0; transition: all 0.5s ease; }
-        .slide-down.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        
-        .slide-up-banner { transform: translateY(100%); opacity: 0; transition: all 0.5s ease; }
-        .slide-up-banner.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
-
-        /* Custom Scrollbar for Modal */
-        .modal-scroll::-webkit-scrollbar { width: 6px; }
-        .modal-scroll::-webkit-scrollbar-thumb { background-color: #d6d3d1; border-radius: 20px; }
+        /* Hide Scrollbar for invoice breakdown */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9524748387567951"
+     crossorigin="anonymous"></script>
 </head>
-<body class="bg-stone-50 text-stone-900 overflow-x-hidden min-h-screen flex flex-col">
-
-    <!-- ALERTS PERMISSION BANNER -->
-    <div id="alertBanner" class="bg-stone-900 text-white px-4 py-3 flex flex-col sm:flex-row justify-between items-center z-50 relative gap-2 text-center sm:text-left transition-all duration-500 overflow-hidden max-h-40">
-        <span class="text-xs font-bold uppercase tracking-widest text-stone-300">Allow Bantse's Pencil to send you live alerts?</span>
-        <div class="flex gap-2 w-full sm:w-auto justify-center">
-            <button onclick="dismissAlert()" class="text-stone-400 px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">No Thanks</button>
-            <button onclick="dismissAlert()" class="bg-white text-stone-900 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-stone-200 transition-colors">Allow</button>
-        </div>
-    </div>
+<body class="overflow-x-hidden min-h-screen flex flex-col">
 
     <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] bg-white border border-stone-200 rounded-2xl p-4 shadow-2xl flex items-center gap-4 slide-down pointer-events-none">
-        <i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i>
-        <p id="toastMsg" class="font-bold text-sm uppercase text-stone-800"></p>
+    <div id="customToast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] bg-stone-900 border border-[#d4af6a]/30 text-[#d4af6a] px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl flex items-center gap-2 transform -translate-y-4 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+        <span id="toastMsg">Action Successful</span>
     </div>
 
     <!-- HEADER -->
-    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-stone-50/90 border-b border-stone-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <div class="flex items-center gap-3 cursor-pointer transition-transform hover:scale-105" onclick="navigate('home')">
-                    <div class="w-10 h-10 bg-stone-900 rounded-full flex items-center justify-center text-stone-50">
-                        <i data-lucide="camera" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="text-xl font-serif font-bold tracking-tight uppercase leading-tight">Bantse's Pencil</h1>
-                        <span class="text-xs text-stone-500 font-medium tracking-wider">TheHandOfXpressions</span>
-                    </div>
+    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0a0a0a]/95 border-b border-[#d4af6a]/15 shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <!-- Logo with Custom Image Badge -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload()">
+                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border border-[#d4af6a]/40 shadow-[0_0_15px_rgba(212,175,106,0.2)] overflow-hidden">
+                    <img src="Letter R for Business Logo_20260524_124758_0000.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
                 </div>
-
-                <!-- Desktop Nav -->
-                <nav class="hidden md:flex items-center gap-8">
-                    <button onclick="navigate('home', 'catalog')" class="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors">Catalog</button>
-                    <button onclick="navigate('gallery')" class="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors">Gallery</button>
-                    <button onclick="navigate('home', 'community')" class="text-xs font-bold uppercase tracking-widest text-stone-600 hover:text-stone-900 transition-colors">Community</button>
-                </nav>
-
-                <!-- Mobile Toggle -->
-                <button onclick="toggleMenu()" class="md:hidden p-2 text-stone-600 transition-transform hover:scale-110">
-                    <i data-lucide="menu" id="menuIcon" class="w-6 h-6"></i>
-                </button>
+                <div class="flex flex-col">
+                    <h1 class="text-base sm:text-xl font-display font-black tracking-wider text-white leading-tight">Bantse's Pencil</h1>
+                    <span class="text-[9px] text-[#d4af6a] font-bold uppercase tracking-[0.2em]">TheHandOfXpressions</span>
+                </div>
             </div>
+
+            <!-- Nav linking to separate Gallery page and TikTok page -->
+            <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-stone-300">
+                <a href="#catalog" class="hover:text-[#d4af6a] transition-colors">Catalog</a>
+                <a href="gallery.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">Gallery <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#d4af6a]"></i></a>
+                <a href="tiktok.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-3.5 h-3.5 text-[#d4af6a]"></i></a>
+                <a href="#community" class="hover:text-[#d4af6a] transition-colors">Community</a>
+            </nav>
+
+            <button onclick="toggleMenu()" class="md:hidden p-2 text-stone-300">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
         </div>
 
-        <!-- Mobile Nav -->
-        <div id="mobileMenu" class="absolute w-full bg-stone-50 border-t border-stone-200 p-4 flex flex-col gap-2 shadow-xl origin-top transition-all duration-300 ease-in-out scale-y-95 opacity-0 invisible pointer-events-none z-30">
-            <button onclick="navigate('home', 'catalog')" class="block w-full text-left text-sm font-bold uppercase tracking-widest p-3 hover:bg-stone-100 rounded-xl transition-colors">Catalog</button>
-            <button onclick="navigate('gallery')" class="block w-full text-left text-sm font-bold uppercase tracking-widest p-3 hover:bg-stone-100 rounded-xl transition-colors">Gallery</button>
-            <button onclick="navigate('home', 'community')" class="block w-full text-left text-sm font-bold uppercase tracking-widest p-3 hover:bg-stone-100 rounded-xl transition-colors">Community Hub</button>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="absolute w-full bg-[#0a0a0a] border-t border-[#d4af6a]/20 p-6 hidden flex-col gap-4 shadow-xl z-30">
+            <a href="#catalog" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Catalog</a>
+            <a href="gallery.html" class="block text-sm font-bold uppercase tracking-widest text-stone-300 flex items-center gap-1 hover:text-[#d4af6a]">Gallery <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#d4af6a]"></i></a>
+            <a href="tiktok.html" class="block text-sm font-bold uppercase tracking-widest text-[#d4af6a] flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-4 h-4"></i></a>
+            <a href="#community" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Community</a>
         </div>
     </header>
 
-    <!-- MASTER VIEW CONTAINER -->
-    <main id="mainContainer" class="flex-1 flex flex-col w-full opacity-100">
-        
-        <!-- ================= HOME VIEW ================= -->
-        <div id="homeView" class="block w-full">
+    <main class="flex-1">
+        <!-- HERO -->
+        <section class="bg-gradient-to-b from-[#111] to-[#0a0a0a] py-20 sm:py-28 text-center px-6 border-b border-[#d4af6a]/10 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,106,0.04)_0%,transparent_70%)]"></div>
+            <div class="max-w-4xl mx-auto relative z-10">
+                <span class="px-4 py-1.5 rounded-full border border-[#d4af6a]/30 bg-stone-900/80 text-[#d4af6a] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 inline-block shadow-lg">
+                    Professional Framing Included
+                </span>
+                <h2 class="text-4xl sm:text-6xl lg:text-7xl font-display font-black text-white mb-8 uppercase tracking-wider leading-none">
+                    The Hand<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#b8963e] to-[#f9e7b9] italic font-normal font-serif">of</span> Xpressions
+                </h2>
+                
+                <div class="frame-style max-w-[260px] sm:max-w-[320px] mx-auto mb-12 animate-pulse">
+                    <img src="FB_IMG_1755412675386.jpg" alt="Featured Drawing" class="w-full aspect-[3/4] object-cover rounded-sm">
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+                    <a href="#catalog" class="bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 py-4 px-6 rounded-2xl font-black text-xs uppercase shadow-[0_10px_25px_rgba(212,175,106,0.25)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.4)] text-center transition-all">Order Portrait</a>
+                    <a href="gallery.html" class="bg-stone-900/50 border-2 border-stone-800 text-stone-200 py-4 px-6 rounded-2xl font-black text-xs uppercase hover:border-[#d4af6a] hover:text-white text-center transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="camera" class="w-4 h-4 text-[#d4af6a]"></i> Enter Gallery
+                    </a>
+                    <a href="tiktok.html" class="bg-[#121212] border-2 border-[#d4af6a]/30 text-[#d4af6a] py-4 px-6 rounded-2xl font-black text-xs uppercase hover:border-[#d4af6a] hover:text-white text-center transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="play-circle" class="w-4 h-4"></i> BANTSE'S STUDIO 
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING CATALOG -->
+        <section id="catalog" class="py-28 max-w-7xl mx-auto px-6 relative">
+            <div class="text-center mb-20">
+                <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af6a] block mb-3">Exquisite Custom Realism</span>
+                <h3 class="font-display text-3xl sm:text-5xl font-bold text-white">Commission Catalog</h3>
+                <div class="w-16 h-[2px] bg-gradient-to-r from-[#b8963e] to-[#d4af6a] mx-auto mt-6"></div>
+            </div>
             
-            <!-- HERO SECTION -->
-            <section class="relative w-full bg-stone-100 overflow-hidden py-20 lg:py-32">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
-                    <span class="px-4 py-1.5 rounded-full border border-stone-300 bg-white/50 text-stone-600 text-[10px] font-black tracking-widest uppercase mb-6 shadow-sm">
-                        Professional Framing Included
-                    </span>
-                    <h2 class="text-[6vw] sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-stone-900 mb-6 tracking-tight uppercase w-full whitespace-nowrap">
-                        TheHandOfXpressions
-                    </h2>
-                    <p class="max-w-2xl text-sm font-bold text-stone-500 mb-10 tracking-widest uppercase">
-                        Realistic Pencil Catalog
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="navigate('home', 'catalog')" class="bg-stone-900 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase shadow-xl hover:bg-stone-800 transition-all hover:-translate-y-1">
-                            Order Now
-                        </button>
-                        <button onclick="navigate('gallery')" class="bg-white border-2 border-stone-200 text-stone-900 px-10 py-4 rounded-2xl font-black text-sm uppercase shadow-sm hover:border-stone-900 transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="camera" class="w-4 h-4"></i> The Gallery
-                        </button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- A4 -->
+                <div onclick="openOrder('A4', 480, 580, 540, 680)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                    <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a4</span>
+                    <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A4 Portrait</h4>
+                    <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
+                        <span>B&W R480</span><span class="text-[#d4af6a]">COLOR R580</span>
                     </div>
                 </div>
-            </section>
-
-            <!-- CATALOG SECTION -->
-            <section id="catalog" class="py-20 bg-stone-50">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        
-                        <!-- A4 -->
-                        <div onclick="openOrder('A4 Portrait', 480, 580, 540, 680)" class="group bg-white rounded-3xl p-6 border-2 border-transparent hover:border-stone-900 cursor-pointer shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                            <span class="bg-stone-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase transition-colors group-hover:bg-stone-800">a4</span>
-                            <h4 class="font-black font-serif text-2xl uppercase mt-4 text-stone-900">A4 Portrait</h4>
-                            <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between text-xs font-bold text-stone-600 uppercase">
-                                <span>B&W R480</span><span>COLOR R580</span>
-                            </div>
-                        </div>
-
-                        <!-- A3 -->
-                        <div onclick="openOrder('A3 Portrait', 680, 780, 740, 880)" class="group bg-white rounded-3xl p-6 border-2 border-transparent hover:border-stone-900 cursor-pointer shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                            <span class="bg-stone-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase transition-colors group-hover:bg-stone-800">a3</span>
-                            <h4 class="font-black font-serif text-2xl uppercase mt-4 text-stone-900">A3 Portrait</h4>
-                            <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between text-xs font-bold text-stone-600 uppercase">
-                                <span>B&W R680</span><span>COLOR R780</span>
-                            </div>
-                        </div>
-
-                        <!-- A2 -->
-                        <div onclick="openOrder('A2 Portrait', 1400, 1700, 1800, 2000)" class="group bg-white rounded-3xl p-6 border-2 border-transparent hover:border-stone-900 cursor-pointer shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                            <span class="bg-stone-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase transition-colors group-hover:bg-stone-800">a2</span>
-                            <h4 class="font-black font-serif text-2xl uppercase mt-4 text-stone-900">A2 Portrait</h4>
-                            <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between text-xs font-bold text-stone-600 uppercase">
-                                <span>B&W R1400</span><span>COLOR R1700</span>
-                            </div>
-                        </div>
-
-                        <!-- A1 -->
-                        <div onclick="openOrder('A1 Portrait', 2700, 2900, 3100, 3400)" class="group bg-white rounded-3xl p-6 border-2 border-transparent hover:border-stone-900 cursor-pointer shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                            <span class="bg-stone-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase transition-colors group-hover:bg-stone-800">a1</span>
-                            <h4 class="font-black font-serif text-2xl uppercase mt-4 text-stone-900">A1 Portrait</h4>
-                            <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between text-xs font-bold text-stone-600 uppercase">
-                                <span>B&W R2700</span><span>COLOR R2900</span>
-                            </div>
-                        </div>
-
+                <!-- A3 -->
+                <div onclick="openOrder('A3', 680, 780, 740, 880)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                    <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a3</span>
+                    <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A3 Portrait</h4>
+                    <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
+                        <span>B&W R680</span><span class="text-[#d4af6a]">COLOR R780</span>
                     </div>
                 </div>
-            </section>
-
-            <!-- SLIDESHOW SECTION -->
-            <section class="py-8 bg-stone-50 px-4">
-                <div class="max-w-6xl mx-auto rounded-[2.5rem] overflow-hidden relative aspect-video bg-stone-100 shadow-sm border border-stone-200" id="slideshowContainer">
-                    <!-- Images injected by JS -->
-                    <div class="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg z-20 flex items-center gap-2 text-stone-900">
-                        <span class="w-2 h-2 bg-stone-900 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Featured Works</span>
+                <!-- A2 -->
+                <div onclick="openOrder('A2', 1400, 1700, 1800, 2000)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-[#d4af6a]/50 cursor-pointer shadow-[0_20px_40px_rgba(212,175,106,0.03)] hover:scale-[1.02] transition-transform relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-[#d4af6a] text-stone-950 font-black text-[8px] uppercase tracking-widest px-4 py-1 rounded-bl-xl shadow-md">Most Popular</div>
+                    <span class="bg-[#d4af6a] text-stone-950 text-[10px] font-black px-3 py-1 rounded-full uppercase">a2 ★</span>
+                    <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A2 Portrait</h4>
+                    <div class="mt-8 pt-6 border-t border-stone-800 flex justify-between text-[10px] font-black text-stone-300 uppercase tracking-wider">
+                        <span>B&W R1400</span><span class="text-[#d4af6a]">COLOR R1700</span>
                     </div>
                 </div>
-            </section>
-
-            <!-- COMMUNITY SECTION -->
-            <section id="community" class="py-20 bg-stone-100 border-t border-stone-200">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        
-                        <!-- Left Col: Share -->
-                        <div id="share" class="flex flex-col gap-8">
-                            <div class="bg-white border-4 border-dashed border-stone-200 rounded-[2.5rem] p-8 text-center transition-all duration-300 hover:border-stone-900 hover:shadow-lg cursor-pointer flex flex-col items-center justify-center">
-                                <i data-lucide="upload-cloud" class="w-12 h-12 text-stone-300 mb-4 transition-transform hover:scale-110"></i>
-                                <h4 class="text-xl font-black uppercase tracking-tighter mb-2 text-stone-900">Share Your Artwork</h4>
-                                <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4">Select an image to post to the live memory</p>
-                                <button class="bg-stone-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-stone-800 shadow-lg transition-transform active:scale-95">
-                                    Select Image
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Right Col: Live Chat -->
-                        <div class="flex flex-col bg-white rounded-[2.5rem] shadow-sm border border-stone-200 overflow-hidden h-[600px] transition-shadow hover:shadow-md">
-                            <div class="p-6 border-b border-stone-100 bg-stone-50 flex items-center gap-3">
-                                <i data-lucide="message-square" class="w-6 h-6 text-stone-900"></i>
-                                <h3 class="text-2xl font-black uppercase tracking-tighter text-stone-900">Live Chat</h3>
-                            </div>
-                            
-                            <div id="chatBox" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4 bg-stone-50/50 scroll-smooth">
-                                <!-- Dummy Chat -->
-                                <div class="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm text-stone-900">
-                                    <p class="text-[9px] font-black text-stone-400 uppercase">ArtLover99</p>
-                                    <p class="text-sm font-bold text-stone-700 mt-1">The shading on that last piece was incredible!</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm text-stone-900">
-                                    <p class="text-[9px] font-black text-stone-400 uppercase">Bantse</p>
-                                    <p class="text-sm font-bold text-stone-700 mt-1">Thank you! Takes hours of layering.</p>
-                                </div>
-                            </div>
-
-                            <form onsubmit="postChat(event)" class="p-6 border-t border-stone-100 bg-white space-y-3">
-                                <input type="text" id="chatName" placeholder="Your Name" class="w-full bg-stone-50 px-4 py-3 rounded-xl outline-none font-bold text-sm border border-transparent focus:border-stone-900 text-stone-900 transition-colors">
-                                <div class="flex gap-2">
-                                    <input type="text" id="chatMsg" placeholder="Say something..." class="flex-1 bg-stone-50 px-4 py-3 rounded-xl outline-none font-bold text-sm border border-transparent focus:border-stone-900 text-stone-900 transition-colors">
-                                    <button type="submit" class="bg-stone-900 text-white p-3 rounded-xl hover:bg-stone-800 shadow-lg transition-transform active:scale-90">
-                                        <i data-lucide="send" class="w-5 h-5"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
+                <!-- A1 -->
+                <div onclick="openOrder('A1', 2700, 2900, 3100, 3400)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                    <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a1</span>
+                    <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A1 Portrait</h4>
+                    <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
+                        <span>B&W R2700</span><span class="text-[#d4af6a]">COLOR R2900</span>
                     </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
 
-        <!-- ================= GALLERY VIEW ================= -->
-        <div id="galleryView" class="hidden w-full">
-            <section class="py-20 bg-stone-900 text-stone-50 min-h-[80vh]">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center justify-between mb-16">
-                        <button onclick="navigate('home')" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-white transition-colors group">
-                            <i data-lucide="chevron-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i> Back Home
-                        </button>
-                        <h3 class="text-4xl font-serif font-black uppercase tracking-tight text-center">The Gallery</h3>
-                        <div class="w-20"></div> <!-- Spacer -->
+        <!-- COMMUNITY -->
+        <section id="community" class="py-24 bg-[#0e0e0e] border-t border-[#d4af6a]/10 px-6">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
+                <!-- Upload/Contribution Portal -->
+                <div onclick="document.getElementById('fileInput').click()" class="bg-[#121212] border-4 border-dashed border-[#d4af6a]/25 rounded-[2.5rem] p-16 text-center flex flex-col items-center justify-center cursor-pointer hover:border-[#d4af6a] transition-colors group">
+                    <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    <div class="w-20 h-20 bg-stone-900 border border-stone-800 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="upload-cloud" class="w-10 h-10 text-[#d4af6a]"></i>
                     </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="galleryGrid">
-                        <!-- Images injected by JS -->
-                    </div>
+                    <h4 class="text-xl font-display font-black uppercase tracking-wider mb-2 text-white">Share Your Portrait</h4>
+                    <p class="text-xs text-stone-400 font-bold uppercase tracking-widest mb-6">Post your drawn portrait directly to the gallery</p>
+                    <button class="bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg">Upload Drawing</button>
                 </div>
-            </section>
-        </div>
 
+                <!-- Chat Box -->
+                <div class="bg-[#121212] rounded-[2.5rem] border border-stone-800 overflow-hidden flex flex-col h-[500px] shadow-2xl">
+                    <div class="p-6 border-b border-stone-900 bg-stone-900/40 flex items-center gap-3 font-display font-black uppercase text-xs tracking-widest text-[#d4af6a]">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> Live Chat
+                    </div>
+                    <div id="chatBox" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4"></div>
+                    <form onsubmit="postChat(event)" class="p-6 border-t border-stone-900 bg-stone-900/20 flex gap-3">
+                        <input type="text" id="chatMsg" placeholder="Say something..." class="flex-1 bg-stone-900/50 border border-stone-800 px-6 py-3 rounded-2xl outline-none text-white font-medium text-sm shadow-inner focus:border-[#d4af6a] transition-colors">
+                        <button type="submit" class="bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 p-4 rounded-2xl shadow-lg active:scale-95 transition-transform"><i data-lucide="send" class="w-5 h-5"></i></button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="py-12 bg-stone-950 text-center z-10">
-        <p class="text-[10px] font-bold text-stone-500 uppercase tracking-[0.3em]">Bantse's Pencil &copy; <span id="year"></span></p>
+    <!-- PREMIUM FOOTER -->
+    <footer class="bg-stone-950 text-stone-300 border-t border-stone-900">
+        <div class="max-w-7xl mx-auto px-6 pt-16 pb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-stone-900">
+                <!-- Branding Col with Custom Logo Badge -->
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border border-stone-800 shadow-[0_0_15px_rgba(212,175,106,0.15)] overflow-hidden">
+                            <img src="Letter R for Business Logo_20260524_124758_0000.png.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
+                        </div>
+                        <div>
+                            <h4 class="font-display text-lg font-bold text-white tracking-tight leading-none">Bantse's Pencil</h4>
+                            <span class="text-[9px] text-[#d4af6a] font-bold uppercase tracking-widest">TheHandOfXpressions</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-stone-400 max-w-sm leading-relaxed">
+                        South African professional graphite realism artist specializing in custom portraiture. Dedicated to preserving your most prized memories and moments with timeless pencil strokes.
+                    </p>
+                </div>
+
+                <!-- Navigation links -->
+                <div class="space-y-4">
+                    <h5 class="text-xs font-black uppercase tracking-[0.2em] text-white">Navigation</h5>
+                    <ul class="space-y-2.5 text-xs text-stone-400">
+                        <li><a href="#catalog" class="hover:text-[#d4af6a] transition-colors">Pricing Catalog</a></li>
+                        <li><a href="gallery.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">Art Gallery <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a></li>
+                        <li><a href="tiktok.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-3.5 h-3.5"></i></a></li>
+                        <li><a href="#community" class="hover:text-[#d4af6a] transition-colors">Community Hub</a></li>
+                    </ul>
+                </div>
+
+                <!-- Artist Direct details -->
+                <div class="space-y-4">
+                    <h5 class="text-xs font-black uppercase tracking-[0.2em] text-white">EFT Bank Details</h5>
+                    <div class="space-y-1 text-xs text-stone-400">
+                        <p class="font-bold text-stone-300">Capitec Bank</p>
+                        <p>Account Holder: B Mampana</p>
+                        <p class="font-mono text-stone-200">Acc No: 2482750098</p>
+                    </div>
+                    <div class="pt-2">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#b8963e]">📍 Pretoria, South Africa</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom footer line with Customized Gold-styled WhatsApp and Facebook buttons -->
+            <div class="pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">
+                    TheHandOfXpressions &copy; <span id="year"></span>. All rights reserved.
+                </p>
+                <div class="flex gap-6 items-center text-[10px] font-bold uppercase tracking-widest">
+                    <!-- WhatsApp Premium Custom Gold Style -->
+                    <a href="https://wa.me/27693944083" target="_blank" class="text-[#d4af6a] hover:text-[#f9e7b9] transition-all flex items-center gap-2 bg-[#121212] hover:bg-[#1a1a1a] px-5 py-2.5 rounded-full border border-[#d4af6a]/30 shadow-md">
+                        <svg class="w-3.5 h-3.5 fill-current text-[#d4af6a]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        <span>WhatsApp</span>
+                    </a>
+                    <!-- Facebook Premium Custom Gold Style -->
+                    <a href="https://www.facebook.com/share/1E3rWJefYm/" target="_blank" class="text-[#d4af6a] hover:text-[#f9e7b9] transition-all flex items-center gap-2 bg-[#121212] hover:bg-[#1a1a1a] px-5 py-2.5 rounded-full border border-[#d4af6a]/30 shadow-md">
+                        <svg class="w-3.5 h-3.5 fill-current text-[#d4af6a]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        <span>Facebook</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </footer>
 
-    <!-- DETAILED ORDER MODAL -->
-    <div id="orderModal" class="fixed inset-0 modal-container flex items-end sm:items-center justify-center">
-        <!-- Backdrop Fade -->
-        <div class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onclick="closeOrder()"></div>
-        
-        <!-- Modal Content Slide -->
-        <div class="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto modal-scroll modal-content">
-            <div class="flex justify-between items-center mb-6 text-stone-900">
-                <h3 id="modalTitle" class="text-2xl font-black uppercase tracking-tight leading-none">Order</h3>
-                <button onclick="closeOrder()" class="p-2 bg-stone-100 hover:bg-stone-200 rounded-full transition-colors active:scale-95">
-                    <i data-lucide="x" class="w-5 h-5 text-stone-600"></i>
-                </button>
+    <!-- DYNAMIC & HIGHLY FUNCTIONAL ORDER MODAL -->
+    <div id="orderModal" class="fixed inset-0 modal-container flex items-end sm:items-center justify-center px-0 sm:px-6">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeOrder()"></div>
+        <div class="relative w-full max-w-md bg-[#121212] border border-[#d4af6a]/20 rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 modal-content shadow-2xl max-h-[92vh] overflow-y-auto no-scrollbar">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 id="modalTitle" class="text-2xl font-display font-black uppercase tracking-tight text-white">Order Portrait</h3>
+                    <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mt-1">Configure your commission details</p>
+                </div>
+                <button onclick="closeOrder()" class="p-2 bg-stone-900 border border-stone-800 hover:bg-stone-800 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5 text-stone-400"></i></button>
             </div>
             
-            <div class="space-y-4 text-stone-900">
-                <!-- Style Selection -->
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="btnBW" onclick="setStyle('bw')" class="py-3 sm:py-4 rounded-xl font-bold border-2 transition-all duration-300 text-sm active:scale-95 border-stone-900 bg-stone-900 text-white">
-                        B&W
-                    </button>
-                    <button id="btnColor" onclick="setStyle('color')" class="py-3 sm:py-4 rounded-xl font-bold border-2 transition-all duration-300 text-sm active:scale-95 border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300">
-                        COLOR
-                    </button>
-                </div>
-                
-                <!-- Extra Toggles -->
-                <button id="btnExtra" onclick="toggleExtra()" class="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all duration-300 active:scale-[0.98] border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300">
-                    <span class="text-sm">2 People / Complex</span><i data-lucide="users" id="iconUsers" class="w-4 h-4 transition-transform"></i>
-                </button>
-                <button id="btnVideo" onclick="toggleVideo()" class="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all duration-300 active:scale-[0.98] border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300">
-                    <span class="text-sm">Time-lapse Video (+R50)</span><i data-lucide="video" id="iconVideo" class="w-4 h-4 transition-transform"></i>
-                </button>
-                
-                <!-- Customer Details -->
-                <input type="text" id="custName" placeholder="Your Full Name" class="w-full bg-stone-100 p-4 rounded-xl outline-none font-bold text-sm border-2 border-transparent focus:border-stone-900 text-stone-900 transition-colors">
-                <input type="email" id="custEmail" placeholder="Your Email Address" class="w-full bg-stone-100 p-4 rounded-xl outline-none font-bold text-sm border-2 border-transparent focus:border-stone-900 text-stone-900 transition-colors">
-                
-                <!-- Bank Details -->
-                <div class="bg-stone-100 p-5 rounded-2xl border-2 border-dashed border-stone-200 mt-4 transition-colors hover:border-stone-300">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-stone-500">Payment Details (Capitec)</span>
-                        <div class="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md shadow-sm border border-stone-200">
-                            <i data-lucide="landmark" class="w-3 h-3 text-blue-500"></i>
-                            <span class="text-[9px] font-black uppercase text-stone-900">Direct EFT</span>
-                        </div>
+            <div class="space-y-6">
+                <!-- STEP 1: STYLE SELECTOR -->
+                <div>
+                    <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">1. Select Art Style</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btnBW" onclick="setStyle('bw')" class="py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+                            <i data-lucide="palette" class="w-4 h-4"></i> B&W
+                        </button>
+                        <button id="btnColor" onclick="setStyle('color')" class="py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Color
+                        </button>
                     </div>
-                    <div class="space-y-1">
-                        <p class="text-sm font-black uppercase text-stone-900">BANTSE MAMPANA</p>
-                        <div class="flex justify-between items-center">
-                            <p class="text-lg font-black tracking-tighter text-stone-900">2482750098</p>
-                            <button onclick="copyAcc()" class="bg-white text-[10px] font-black uppercase px-3 py-1.5 rounded-lg border border-stone-200 shadow-sm hover:bg-stone-50 flex items-center gap-1.5 transition-transform active:scale-95">
-                                <i data-lucide="copy" class="w-3 h-3 text-stone-900"></i> Copy
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-[9px] font-bold text-stone-400 mt-3 uppercase tracking-tighter">* Send proof of payment via WhatsApp after ordering.</p>
                 </div>
 
-                <!-- Total & Submit -->
-                <div class="pt-4 border-t border-stone-100 flex flex-col gap-4 bg-stone-50 p-6 rounded-2xl mt-4">
-                    <div class="flex justify-between items-center text-stone-900">
-                        <p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Estimated Total</p>
-                        <p id="totalDisplay" class="text-3xl font-black tracking-tighter">R0</p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2 w-full mt-2">
-                        <button onclick="submitWhatsApp()" class="flex-1 bg-[#25D366] text-white px-6 py-4 rounded-xl font-black flex items-center justify-center gap-2 hover:bg-[#20b958] transition-all active:scale-95 text-sm shadow-xl uppercase">
-                            WhatsApp Order
+                <!-- STEP 2: COMPLEXITY & TIME-LAPSE -->
+                <div>
+                    <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">2. Subject & Extra Options</span>
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- Single/Multiple Subject Toggle -->
+                        <button id="btnComplexity" onclick="toggleComplexity()" class="py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all bg-stone-900/40">
+                            <span class="text-xs uppercase tracking-wider text-stone-300">2+ People / Complex Art</span>
+                            <span id="badgeComplexity" class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Standard</span>
                         </button>
-                        <button onclick="submitEmail()" class="flex-1 bg-stone-900 text-white px-6 py-4 rounded-xl font-black flex items-center justify-center gap-2 hover:bg-stone-800 transition-all active:scale-95 text-sm shadow-xl uppercase">
-                            Email Order
+
+                        <!-- Timelapse Video Toggle -->
+                        <button id="btnTimelapse" onclick="toggleTimelapse()" class="py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all bg-stone-900/40">
+                            <span class="text-xs uppercase tracking-wider text-stone-300">Drawing Timelapse Video</span>
+                            <span id="badgeTimelapse" class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase">+ R50</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: DELIVERY OPTIONS -->
+                <div>
+                    <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">3. Fulfilment & Delivery</span>
+                    <!-- Delivery Selector -->
+                    <div class="flex flex-col gap-1.5">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btnCollect" onclick="setDelivery('collect')" class="py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider">Pretoria Pickup</button>
+                            <button id="btnShipping" onclick="setDelivery('shipping')" class="py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider">PostNet (+R100)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: CONTACT & DETAILS -->
+                <div>
+                    <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">4. Client Information</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4af6a]"></i>
+                            <input type="text" id="custName" placeholder="Your Full Name" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3 rounded-xl outline-none font-bold text-xs text-white focus:border-[#d4af6a] transition-colors">
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4af6a]"></i>
+                            <input type="email" id="custEmail" placeholder="Email Address" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3 rounded-xl outline-none font-bold text-xs text-white focus:border-[#d4af6a] transition-colors">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORDER BILLING SUMMARY -->
+                <div class="bg-stone-950 border border-stone-800 text-white p-6 rounded-2xl shadow-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <p class="text-[9px] font-black text-[#b8963e] uppercase tracking-widest">Commission Total</p>
+                            <p class="text-xs text-stone-400 mt-1" id="invoiceDetails">Standard B&W Portrait</p>
+                        </div>
+                        <p id="totalDisplay" class="text-4xl font-display font-black tracking-tight text-white">R0</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3" id="orderActions">
+                        <!-- Redesigned Luxury Gold WhatsApp Order Button -->
+                        <button id="btnWhatsAppSubmit" onclick="submitWhatsApp()" class="w-full bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 shadow-[0_10px_20px_rgba(212,175,106,0.15)] hover:shadow-[0_10px_25px_rgba(212,175,106,0.3)] hover:scale-[1.02] active:scale-95 transition-all duration-300">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Order
+                        </button>
+                        <!-- Redesigned Luxury Hollow Gold Email Order Button -->
+                        <button id="btnEmailSubmit" onclick="submitEmail()" class="w-full bg-transparent border border-[#d4af6a]/30 text-[#d4af6a] py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 hover:bg-[#d4af6a]/10 hover:border-[#d4af6a] active:scale-95 transition-all duration-300">
+                            <i data-lucide="mail" class="w-4 h-4"></i> Email Order
                         </button>
                     </div>
                 </div>
@@ -335,292 +371,218 @@
         </div>
     </div>
 
-    <!-- COOKIE BANNER -->
-    <div id="cookieBanner" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-[400px] bg-white border border-stone-200 shadow-2xl rounded-3xl p-5 z-[100] flex flex-col gap-3 slide-up-banner pointer-events-none">
-        <div class="flex items-start gap-3">
-            <i data-lucide="info" class="w-5 h-5 text-stone-400 shrink-0 mt-0.5"></i>
-            <p class="text-sm text-stone-600 leading-relaxed font-medium">
-                We use a memory system (cookies) to instantly save your details as you type, ensuring a faster checkout and seamless chat experience.
-            </p>
-        </div>
-        <div class="flex gap-2 mt-2">
-            <button onclick="acceptCookies()" class="flex-1 py-2.5 bg-stone-900 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-stone-800 transition-colors shadow-md active:scale-95">
-                Accept
-            </button>
-            <button onclick="declineCookies()" class="flex-1 py-2.5 bg-stone-100 text-stone-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-stone-200 transition-colors active:scale-95">
-                Decline
-            </button>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
-        document.getElementById('year').textContent = new Date().getFullYear();
+        // Pricing Database
+        const pricing = {
+            A4: { bw: 480, col: 580, bwEx: 540, colEx: 680 },
+            A3: { bw: 680, col: 780, bwEx: 740, colEx: 880 },
+            A2: { bw: 1400, col: 1700, bwEx: 1800, colEx: 2000 },
+            A1: { bw: 2700, col: 2900, bwEx: 3100, colEx: 3400 }
+        };
 
-        // --- DATA ---
-        const galleryImages = [
-            "FB_IMG_1777339383702.jpg", "FB_IMG_1777339469022.jpg", 
-            "FB_IMG_1777339475230.jpg", "FB_IMG_1777339483007.jpg", 
-            "FB_IMG_1777339520307.jpg", "FB_IMG_1777339488462.jpg"
-        ];
-        
-        const slideImages = [
-            "FB_IMG_1777339488462.jpg", "FB_IMG_1777339520307.jpg",
-            "FB_IMG_1777339469022.jpg", "FB_IMG_1777339483007.jpg"
-        ];
+        let order = { 
+            size: '', 
+            style: 'bw', 
+            isExtra: false, 
+            hasTimelapse: false, 
+            delivery: 'collect' 
+        };
 
-        // --- STATE ---
-        let currentView = 'home';
-        let isMenuOpen = false;
-        let orderState = { size: '', bw: 0, color: 0, bwEx: 0, colEx: 0, style: 'bw', isExtra: false, hasVideo: false };
-        let slideIndex = 0;
-        let slideInterval;
-
-        // --- NAVIGATION & VIEWS ---
         function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            const menu = document.getElementById('mobileMenu');
-            if(isMenuOpen) {
-                menu.classList.remove('scale-y-95', 'opacity-0', 'invisible', 'pointer-events-none');
-                menu.classList.add('scale-y-100', 'opacity-100', 'visible');
-            } else {
-                menu.classList.add('scale-y-95', 'opacity-0', 'invisible', 'pointer-events-none');
-                menu.classList.remove('scale-y-100', 'opacity-100', 'visible');
-            }
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         }
 
-        function navigate(view, anchorId = null) {
-            if(isMenuOpen) toggleMenu();
-            if(view === currentView) {
-                if(anchorId) scrollToAnchor(anchorId);
-                return;
-            }
-
-            const container = document.getElementById('mainContainer');
-            container.style.opacity = '0'; // Fade out
-            
-            setTimeout(() => {
-                document.getElementById('homeView').classList.add('hidden');
-                document.getElementById('galleryView').classList.add('hidden');
-                
-                document.getElementById(view + 'View').classList.remove('hidden');
-                document.getElementById(view + 'View').classList.add('block');
-                currentView = view;
-                
-                window.scrollTo(0,0);
-                container.style.opacity = '1'; // Fade in
-                
-                if(anchorId) scrollToAnchor(anchorId);
-            }, 300);
-        }
-
-        function scrollToAnchor(id) {
-            setTimeout(() => {
-                const el = document.getElementById(id);
-                if(el) el.scrollIntoView({behavior: 'smooth'});
-            }, 100);
-        }
-
-        function dismissAlert() {
-            const banner = document.getElementById('alertBanner');
-            banner.classList.remove('max-h-40', 'py-3');
-            banner.classList.add('max-h-0', 'py-0', 'opacity-0', 'border-none');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
+        // Custom Toast Helper
+        function showCustomToast(msg) {
+            const toast = document.getElementById('customToast');
             document.getElementById('toastMsg').textContent = msg;
-            toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), 3000);
+            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+            }, 3500);
         }
 
-        // --- GALLERY & SLIDESHOW INJECTION ---
-        function renderGallery() {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = galleryImages.map((src, i) => `
-                <div class="group relative aspect-square overflow-hidden rounded-3xl bg-stone-800" style="animation: fadeIn 0.5s ease-out ${i*0.1}s both;">
-                    <img src="${src}" onerror="this.src='https://placehold.co/400x400/eee/999?text=Portfolio'" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                </div>
-            `).join('');
-        }
-        renderGallery();
-
-        function startSlideshow() {
-            const container = document.getElementById('slideshowContainer');
-            slideImages.forEach((src, i) => {
-                const img = document.createElement('img');
-                img.src = src;
-                img.id = `slide-${i}`;
-                img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
-                img.onerror = function() { this.src='https://placehold.co/800x400/eee/999?text=Featured+Work'; };
-                container.prepend(img);
-            });
-
-            slideInterval = setInterval(() => {
-                if(currentView !== 'home') return;
-                document.getElementById(`slide-${slideIndex}`).classList.replace('opacity-100', 'opacity-0');
-                document.getElementById(`slide-${slideIndex}`).classList.replace('z-10', 'z-0');
-                
-                slideIndex = (slideIndex + 1) % slideImages.length;
-                
-                document.getElementById(`slide-${slideIndex}`).classList.replace('opacity-0', 'opacity-100');
-                document.getElementById(`slide-${slideIndex}`).classList.replace('z-0', 'z-10');
-            }, 4000);
-        }
-        startSlideshow();
-
-        // --- INSTANT MEMORY SYSTEM (COOKIES/LOCALSTORAGE) ---
-        const nameInput = document.getElementById('custName');
-        const emailInput = document.getElementById('custEmail');
-        const chatName = document.getElementById('chatName');
-
-        function checkCookies() {
-            const consent = localStorage.getItem('bantseCookieConsent');
-            if(!consent) {
-                setTimeout(() => document.getElementById('cookieBanner').classList.add('active'), 1000);
-            }
-            
-            const savedName = localStorage.getItem('bantseArtistName');
-            const savedEmail = localStorage.getItem('bantseEmail');
-            
-            if(savedName) { nameInput.value = savedName; chatName.value = savedName; }
-            if(savedEmail) emailInput.value = savedEmail;
-        }
-
-        function acceptCookies() {
-            localStorage.setItem('bantseCookieConsent', 'accepted');
-            document.getElementById('cookieBanner').classList.remove('active');
-            syncInputsToStorage();
-        }
-
-        function declineCookies() {
-            localStorage.setItem('bantseCookieConsent', 'declined');
-            document.getElementById('cookieBanner').classList.remove('active');
-            localStorage.removeItem('bantseArtistName');
-            localStorage.removeItem('bantseEmail');
-        }
-
-        function syncInputsToStorage() {
-            if(localStorage.getItem('bantseCookieConsent') !== 'declined') {
-                if(nameInput.value) localStorage.setItem('bantseArtistName', nameInput.value);
-                if(emailInput.value) localStorage.setItem('bantseEmail', emailInput.value);
-            }
-        }
-
-        // Auto-save on keystroke
-        [nameInput, emailInput, chatName].forEach(input => {
-            input.addEventListener('input', (e) => {
-                if(e.target.id === 'chatName') nameInput.value = e.target.value;
-                if(e.target.id === 'custName') chatName.value = e.target.value;
-                syncInputsToStorage();
-            });
+        window.addEventListener('load', () => {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            const checkFB = setInterval(async () => {
+                if (window.fb) {
+                    clearInterval(checkFB);
+                    const { auth, db, appId, onSnapshot, collection, query, signInAnonymously } = window.fb;
+                    await signInAnonymously(auth);
+                    
+                    onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'comments')), s => {
+                        const chats = s.docs.map(d => d.data()).sort((a,b) => a.createdAt - b.createdAt);
+                        document.getElementById('chatBox').innerHTML = chats.map(c => `
+                            <div class="bg-stone-900 p-4 rounded-2xl border border-stone-800 shadow-sm self-start max-w-[85%]">
+                                <p class="text-[9px] font-black text-[#d4af6a] uppercase tracking-widest mb-1">${c.author || 'Visitor'}</p>
+                                <p class="text-xs font-bold text-stone-200 leading-relaxed">${c.text}</p>
+                            </div>
+                        `).join('');
+                        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+                    });
+                }
+            }, 100);
         });
 
-        window.onload = checkCookies;
+        async function postChat(e) {
+            e.preventDefault();
+            const t = document.getElementById('chatMsg').value;
+            if(!t) return;
+            const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), { text: t, createdAt: serverTimestamp(), author: localStorage.getItem('bantseName') || 'Visitor' });
+            document.getElementById('chatMsg').value = '';
+        }
 
-        // --- ORDER MODAL LOGIC ---
-        function openOrder(size, bw, color, bwEx, colEx) {
-            orderState = { size, bw, color, bwEx, colEx, style: 'bw', isExtra: false, hasVideo: false };
-            document.getElementById('modalTitle').textContent = size + " Order";
+        document.getElementById('fileInput').addEventListener('change', function() {
+            if(this.files.length) {
+                const reader = new FileReader();
+                reader.readAsDataURL(this.files[0]);
+                reader.onload = async e => {
+                    const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery_cloud'), { url: e.target.result, createdAt: serverTimestamp() });
+                    showCustomToast("Portrait shared! Check gallery page.");
+                }
+            }
+        });
+
+        // Interactive Order Initialization
+        function openOrder(s) {
+            order = { 
+                size: s, 
+                style: 'bw', 
+                isExtra: false, 
+                hasTimelapse: false, 
+                delivery: 'collect' 
+            };
+            
+            document.getElementById('modalTitle').textContent = s + " Commission Setup";
             updateOrderUI();
             document.getElementById('orderModal').classList.add('show');
         }
 
-        function closeOrder() {
-            document.getElementById('orderModal').classList.remove('show');
+        function closeOrder() { document.getElementById('orderModal').classList.remove('show'); }
+        
+        function setStyle(s) { order.style = s; updateOrderUI(); }
+        
+        // Toggle complexity settings
+        function toggleComplexity() { 
+            order.isExtra = !order.isExtra; 
+            updateOrderUI(); 
+        }
+        
+        // Toggle drawing video timelapse settings
+        function toggleTimelapse() { 
+            order.hasTimelapse = !order.hasTimelapse; 
+            updateOrderUI(); 
+        }
+        
+        // Set delivery configurations
+        function setDelivery(d) { 
+            order.delivery = d; 
+            updateOrderUI(); 
         }
 
-        function setStyle(s) { orderState.style = s; updateOrderUI(); }
-        function toggleExtra() { orderState.isExtra = !orderState.isExtra; updateOrderUI(); }
-        function toggleVideo() { orderState.hasVideo = !orderState.hasVideo; updateOrderUI(); }
-
+        // Active State UI Handler
         function updateOrderUI() {
-            const isBW = orderState.style === 'bw';
-            
-            // Buttons UI
-            const btnBW = document.getElementById('btnBW');
-            const btnColor = document.getElementById('btnColor');
-            const btnExtra = document.getElementById('btnExtra');
-            const btnVideo = document.getElementById('btnVideo');
-            
-            btnBW.className = `py-3 sm:py-4 rounded-xl font-bold border-2 transition-all duration-300 text-sm active:scale-95 ${isBW ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300'}`;
-            btnColor.className = `py-3 sm:py-4 rounded-xl font-bold border-2 transition-all duration-300 text-sm active:scale-95 ${!isBW ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300'}`;
-            
-            btnExtra.className = `w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all duration-300 active:scale-[0.98] ${orderState.isExtra ? 'border-stone-900 bg-white text-stone-900 shadow-sm' : 'border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300'}`;
-            document.getElementById('iconUsers').classList.toggle('scale-110', orderState.isExtra);
-            
-            btnVideo.className = `w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all duration-300 active:scale-[0.98] ${orderState.hasVideo ? 'border-stone-900 bg-white text-stone-900 shadow-sm' : 'border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-300'}`;
-            document.getElementById('iconVideo').classList.toggle('scale-110', orderState.hasVideo);
+            const sizeData = pricing[order.size];
+            if (!sizeData) return;
 
-            // Calculate
-            let base = isBW ? (orderState.isExtra ? orderState.bwEx : orderState.bw) : (orderState.isExtra ? orderState.colEx : orderState.color);
-            let total = base + (orderState.hasVideo ? 50 : 0);
-            document.getElementById('totalDisplay').textContent = "R" + total;
+            // Highlight Art Style Button
+            const isBW = order.style === 'bw';
+            document.getElementById('btnBW').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+            document.getElementById('btnColor').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${!isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+
+            // Highlight Subject Option
+            document.getElementById('btnComplexity').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.isExtra ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+            document.getElementById('badgeComplexity').textContent = order.isExtra ? "Multiple/Complex" : "Standard";
+            document.getElementById('badgeComplexity').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.isExtra ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
+
+            // Highlight Timelapse Option
+            document.getElementById('btnTimelapse').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.hasTimelapse ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+            document.getElementById('badgeTimelapse').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.hasTimelapse ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
+
+            // Highlight Delivery choice
+            const isCollect = order.delivery === 'collect';
+            document.getElementById('btnCollect').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+            document.getElementById('btnShipping').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${!isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+
+            // Dynamic Price Calculations
+            let base = 0;
+            if (isBW) {
+                base = order.isExtra ? sizeData.bwEx : sizeData.bw;
+            } else {
+                base = order.isExtra ? sizeData.colEx : sizeData.col;
+            }
+
+            const deliveryCost = order.delivery === 'shipping' ? 100 : 0;
+            const timelapseCost = order.hasTimelapse ? 50 : 0;
+
+            const finalTotal = base + deliveryCost + timelapseCost;
+            document.getElementById('totalDisplay').textContent = "R" + finalTotal;
+
+            // Invoice Description Update
+            const desc = `${order.size} | ${isBW ? 'B&W' : 'Color'} | ${order.isExtra ? 'Complex' : '1 Subject'} ${order.hasTimelapse ? '+ Video' : ''}`;
+            document.getElementById('invoiceDetails').textContent = desc;
         }
 
-        function copyAcc() {
-            navigator.clipboard.writeText("2482750098");
-            showToast("Account Number Copied!");
-        }
-
-        function getOrderData() {
-            const n = nameInput.value;
-            const e = emailInput.value;
-            if(!n) { alert("Please enter your name!"); return null; }
-            syncInputsToStorage();
-            return {
-                name: n, email: e, size: orderState.size, total: document.getElementById('totalDisplay').textContent,
-                style: orderState.style === 'bw' ? 'Black & White' : 'Color',
-                extra: orderState.isExtra ? '(Complex)' : '',
-                vid: orderState.hasVideo ? 'Yes' : 'No'
-            };
-        }
-
-        function submitWhatsApp() {
-            const d = getOrderData();
-            if(!d) return;
-            const msg = `*NEW ORDER*%0A*Customer:* ${d.name}%0A*Email:* ${d.email}%0A*Size:* ${d.size}%0A*Style:* ${d.style} ${d.extra}%0A*Video:* ${d.vid}%0A*Total:* ${d.total}%0A*Bank:* Capitec (Acc No. 2482750098)`;
-            window.open(`https://wa.me/27693944083?text=${msg}`, '_blank');
-        }
-
+        // Email Submission with Details Verification
         async function submitEmail() {
-            const d = getOrderData();
-            if(!d) return;
-            if(!d.email) { alert("Please enter your email!"); return; }
+            const n = document.getElementById('custName').value.trim();
+            const e = document.getElementById('custEmail').value.trim();
+            if(!n || !e) return alert("Verify Client Info: Please enter both your Name and Email Address.");
             
-            const formData = { Customer: d.name, Email: d.email, Size: d.size, Total: d.total, Bank: "Capitec" };
+            const total = document.getElementById('totalDisplay').textContent;
+            const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
+            const complexityLabel = order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject';
+            const timelapseLabel = order.hasTimelapse ? 'Yes' : 'No';
+            const deliveryLabel = order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)';
+
+            const orderDetails = {
+                Customer: n,
+                Email: e,
+                Size: order.size,
+                Style: styleLabel,
+                Subjects: complexityLabel,
+                TimelapseVideo: timelapseLabel,
+                Delivery: deliveryLabel,
+                GrandTotal: total
+            };
+
             try {
-                await fetch("https://formspree.io/f/myklqqld", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
-                showToast("Order details sent via Email!");
+                await fetch("https://formspree.io/f/myklqqld", { 
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify(orderDetails) 
+                });
+                showCustomToast("E-mail order sent! Thank you.");
                 closeOrder();
             } catch (err) {
-                alert("Error sending email. Please use WhatsApp.");
+                alert("Form submission error. Please use WhatsApp fallback.");
             }
         }
 
-        // --- CHAT LOGIC ---
-        function postChat(e) {
-            e.preventDefault();
-            const msgInput = document.getElementById('chatMsg');
-            const msg = msgInput.value.trim();
-            if(!msg) return;
+        // WhatsApp Submission
+        function submitWhatsApp() {
+            const n = document.getElementById('custName').value.trim();
+            if(!n) return alert("Verify Client Info: Please enter your Full Name.");
             
-            const name = chatName.value || 'Visitor';
-            const chatBox = document.getElementById('chatBox');
-            
-            const newHtml = `
-                <div class="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm text-stone-900 slide-down active">
-                    <p class="text-[9px] font-black text-stone-400 uppercase">${name}</p>
-                    <p class="text-sm font-bold text-stone-700 mt-1">${msg}</p>
-                </div>
-            `;
-            chatBox.insertAdjacentHTML('beforeend', newHtml);
-            msgInput.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+            const total = document.getElementById('totalDisplay').textContent;
+            const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
+            const complexityLabel = order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject';
+            const timelapseLabel = order.hasTimelapse ? 'Yes' : 'No';
+            const deliveryLabel = order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)';
 
+            const msg = `*NEW COMMISSION ORDER — Bantse's Pencil*%0A` +
+                        `*Customer Name:* ${encodeURIComponent(n)}%0A` +
+                        `*Size:* ${encodeURIComponent(order.size)}%0A` +
+                        `*Style:* ${encodeURIComponent(styleLabel)}%0A` +
+                        `*Subjects:* ${encodeURIComponent(complexityLabel)}%0A` +
+                        `*Timelapse Video:* ${encodeURIComponent(timelapseLabel)}%0A` +
+                        `*Delivery:* ${encodeURIComponent(deliveryLabel)}%0A` +
+                        `*Grand Total:* ${encodeURIComponent(total)}`;
+
+            window.open(`https://wa.me/27693944083?text=${msg}`, '_blank');
+        }
     </script>
 </body>
 </html>
