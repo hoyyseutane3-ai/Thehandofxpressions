@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TheHandOfXpressions | Bantse's Pencil</title>
-    
+
     <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -53,10 +53,56 @@
         /* Hide Scrollbar for invoice breakdown */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes lazyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .animate-lazy {
+            animation: lazyFloat 4s ease-in-out infinite;
+        }
+
+        /* LAZY LAUNCH SCROLL-UP SYSTEM */
+        .lazy-reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .lazy-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Endless marquee sliding track styling */
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            gap: 2rem;
+            animation: scrollLeft 25s linear infinite;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        .gold-frame {
+            width: 220px;
+            aspect-ratio: 3/4;
+            flex-shrink: 0;
+            border: 10px solid #141414;
+            outline: 1px solid #d4af6a;
+            padding: 8px;
+            background: #1a1a1a;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
     </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9524748387567951"
-     crossorigin="anonymous"></script>
 </head>
+
 <body class="overflow-x-hidden min-h-screen flex flex-col">
 
     <!-- TOAST NOTIFICATION -->
@@ -70,7 +116,7 @@
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <!-- Logo with Custom Image Badge -->
             <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload()">
-                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border border-[#d4af6a]/40 shadow-[0_0_15px_rgba(212,175,106,0.2)] overflow-hidden">
+                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border border-[#d4af6a]/40 shadow-[0_0_15px_rgba(212,175,106,0.2)] overflow-hidden animate-pulse">
                     <img src="Letter R for Business Logo_20260524_124758_0000.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
                 </div>
                 <div class="flex flex-col">
@@ -79,7 +125,7 @@
                 </div>
             </div>
 
-            <!-- Nav linking to separate Gallery page and TikTok page -->
+            <!-- Nav linking -->
             <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-stone-300">
                 <a href="#catalog" class="hover:text-[#d4af6a] transition-colors">Catalog</a>
                 <a href="gallery.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">Gallery <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#d4af6a]"></i></a>
@@ -93,16 +139,16 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="absolute w-full bg-[#0a0a0a] border-t border-[#d4af6a]/20 p-6 hidden flex-col gap-4 shadow-xl z-30">
+        <div id="mobileMenu" class="absolute w-full bg-[#0a0a0a] border-t border-[#d4af6a]/20 p-6 hidden flex-col gap-4 shadow-xl z-35">
             <a href="#catalog" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Catalog</a>
             <a href="gallery.html" class="block text-sm font-bold uppercase tracking-widest text-stone-300 flex items-center gap-1 hover:text-[#d4af6a]">Gallery <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#d4af6a]"></i></a>
-            <a href="tiktok.html" class="block text-sm font-bold uppercase tracking-widest text-[#d4af6a] flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-4 h-4"></i></a>
+            <a href="tiktok.html" class="block text-sm font-bold uppercase tracking-widest text-[#d4af6a] flex items-center gap-1">BANTSE'S STUDIO <i data-lucide="play-circle" class="w-4 h-4"></i></a>
             <a href="#community" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Community</a>
         </div>
     </header>
 
     <main class="flex-1">
-        <!-- HERO -->
+        <!-- 1. HERO SECTION -->
         <section class="bg-gradient-to-b from-[#111] to-[#0a0a0a] py-20 sm:py-28 text-center px-6 border-b border-[#d4af6a]/10 relative overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,106,0.04)_0%,transparent_70%)]"></div>
             <div class="max-w-4xl mx-auto relative z-10">
@@ -110,7 +156,7 @@
                     Professional Framing Included
                 </span>
                 <h2 class="text-4xl sm:text-6xl lg:text-7xl font-display font-black text-white mb-8 uppercase tracking-wider leading-none">
-                    The Hand<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#b8963e] to-[#f9e7b9] italic font-normal font-serif">of</span> Xpressions
+                    The Hand<br><span class="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#b8963e] to-[#f9e7b9] italic font-normal font-serif">of</span> Xpressions
                 </h2>
                 
                 <div class="frame-style max-w-[260px] sm:max-w-[320px] mx-auto mb-12 animate-pulse">
@@ -122,16 +168,33 @@
                     <a href="gallery.html" class="bg-stone-900/50 border-2 border-stone-800 text-stone-200 py-4 px-6 rounded-2xl font-black text-xs uppercase hover:border-[#d4af6a] hover:text-white text-center transition-all flex items-center justify-center gap-2">
                         <i data-lucide="camera" class="w-4 h-4 text-[#d4af6a]"></i> Enter Gallery
                     </a>
-                    <a href="tiktok.html" class="bg-[#121212] border-2 border-[#d4af6a]/30 text-[#d4af6a] py-4 px-6 rounded-2xl font-black text-xs uppercase hover:border-[#d4af6a] hover:text-white text-center transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="play-circle" class="w-4 h-4"></i> BANTSE'S STUDIO 
+                                        <a href="TikTok.html" class="bg-stone-900/50 border-2 border-stone-800 text-stone-200 py-4 px-6 rounded-2xl font-black text-xs uppercase hover:border-[#d4af6a] hover:text-white text-center transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="video" class="w-4 h-4 text-[#d4af6a]"></i> Bantse's Studio 
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- PRICING CATALOG -->
-        <section id="catalog" class="py-28 max-w-7xl mx-auto px-6 relative">
-            <div class="text-center mb-20">
+        <!-- 2. HORIZONTAL GALLERY SLIDESHOW -->
+        <div class="slideshow-outer overflow-hidden w-full bg-[#0a0a0a] py-8 border-b border-[#d4af6a]/10 lazy-reveal" data-delay="100">
+            <div class="marquee-track">
+                <div class="gold-frame"><img src="FB_IMG_1777339383702.jpg" alt="Art 1"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339391290.jpg" alt="Art 2"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777810142298.jpg" alt="Art 3"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339520307.jpg" alt="Art 4"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339469022.jpg" alt="Art 5"></div>
+                <!-- Marquee Loop Padding -->
+                <div class="gold-frame"><img src="FB_IMG_1777339383702.jpg" alt="Art 1"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339391290.jpg" alt="Art 2"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777810142298.jpg" alt="Art 3"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339520307.jpg" alt="Art 4"></div>
+                <div class="gold-frame"><img src="FB_IMG_1777339469022.jpg" alt="Art 5"></div>
+            </div>
+        </div>
+
+        <!-- 3. COMMISSION PRICING CATALOG -->
+        <section id="catalog" class="py-24 max-w-7xl mx-auto px-6 relative">
+            <div class="text-center mb-16 lazy-reveal" data-delay="100">
                 <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af6a] block mb-3">Exquisite Custom Realism</span>
                 <h3 class="font-display text-3xl sm:text-5xl font-bold text-white">Commission Catalog</h3>
                 <div class="w-16 h-[2px] bg-gradient-to-r from-[#b8963e] to-[#d4af6a] mx-auto mt-6"></div>
@@ -139,7 +202,7 @@
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- A4 -->
-                <div onclick="openOrder('A4', 480, 580, 540, 680)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                <div onclick="openOrder('A4', 480, 580, 540, 680)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group transform hover:-translate-y-2 duration-350 lazy-reveal" data-delay="100">
                     <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a4</span>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A4 Portrait</h4>
                     <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
@@ -147,7 +210,7 @@
                     </div>
                 </div>
                 <!-- A3 -->
-                <div onclick="openOrder('A3', 680, 780, 740, 880)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                <div onclick="openOrder('A3', 680, 780, 740, 880)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group transform hover:-translate-y-2 duration-350 lazy-reveal" data-delay="200">
                     <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a3</span>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A3 Portrait</h4>
                     <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
@@ -155,7 +218,7 @@
                     </div>
                 </div>
                 <!-- A2 -->
-                <div onclick="openOrder('A2', 1400, 1700, 1800, 2000)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-[#d4af6a]/50 cursor-pointer shadow-[0_20px_40px_rgba(212,175,106,0.03)] hover:scale-[1.02] transition-transform relative overflow-hidden group">
+                <div onclick="openOrder('A2', 1400, 1700, 1800, 2000)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-[#d4af6a]/50 cursor-pointer shadow-[0_20px_40px_rgba(212,175,106,0.03)] hover:scale-[1.02] transition-transform relative overflow-hidden group transform hover:-translate-y-2 duration-350 lazy-reveal" data-delay="300">
                     <div class="absolute top-0 right-0 bg-[#d4af6a] text-stone-950 font-black text-[8px] uppercase tracking-widest px-4 py-1 rounded-bl-xl shadow-md">Most Popular</div>
                     <span class="bg-[#d4af6a] text-stone-950 text-[10px] font-black px-3 py-1 rounded-full uppercase">a2 ★</span>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A2 Portrait</h4>
@@ -164,7 +227,7 @@
                     </div>
                 </div>
                 <!-- A1 -->
-                <div onclick="openOrder('A1', 2700, 2900, 3100, 3400)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group">
+                <div onclick="openOrder('A1', 2700, 2900, 3100, 3400)" class="bg-[#121212] p-8 rounded-[2rem] border-2 border-stone-900 hover:border-[#d4af6a] cursor-pointer shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_30px_rgba(212,175,106,0.05)] transition-all group transform hover:-translate-y-2 duration-350 lazy-reveal" data-delay="400">
                     <span class="bg-stone-900 border border-stone-800 text-[#d4af6a] text-[10px] font-black px-3 py-1 rounded-full uppercase">a1</span>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#d4af6a] transition-colors">A1 Portrait</h4>
                     <div class="mt-8 pt-6 border-t border-stone-900 flex justify-between text-[10px] font-black text-stone-400 uppercase tracking-wider">
@@ -174,30 +237,52 @@
             </div>
         </section>
 
-        <!-- COMMUNITY -->
-        <section id="community" class="py-24 bg-[#0e0e0e] border-t border-[#d4af6a]/10 px-6">
-            <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
-                <!-- Upload/Contribution Portal -->
-                <div onclick="document.getElementById('fileInput').click()" class="bg-[#121212] border-4 border-dashed border-[#d4af6a]/25 rounded-[2.5rem] p-16 text-center flex flex-col items-center justify-center cursor-pointer hover:border-[#d4af6a] transition-colors group">
-                    <input type="file" id="fileInput" accept="image/*" class="hidden">
-                    <div class="w-20 h-20 bg-stone-900 border border-stone-800 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="upload-cloud" class="w-10 h-10 text-[#d4af6a]"></i>
-                    </div>
-                    <h4 class="text-xl font-display font-black uppercase tracking-wider mb-2 text-white">Share Your Portrait</h4>
-                    <p class="text-xs text-stone-400 font-bold uppercase tracking-widest mb-6">Post your drawn portrait directly to the gallery</p>
-                    <button class="bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg">Upload Drawing</button>
-                </div>
+        <!-- 4. PREMIUM PORTRAIT Q&A -->
+        <section class="py-16 bg-[#0a0a0a] lazy-reveal" data-delay="100">
+            <div class="max-w-3xl mx-auto px-6">
+                <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af6a] block mb-3 text-center">Common Inquiries</span>
+                <h3 class="font-display text-3xl font-black text-white text-center mb-10">Bantse's Q&A</h3>
 
-                <!-- Chat Box -->
-                <div class="bg-[#121212] rounded-[2.5rem] border border-stone-800 overflow-hidden flex flex-col h-[500px] shadow-2xl">
-                    <div class="p-6 border-b border-stone-900 bg-stone-900/40 flex items-center gap-3 font-display font-black uppercase text-xs tracking-widest text-[#d4af6a]">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i> Live Chat
+                <div class="space-y-4">
+                    <details class="group bg-[#121212] border border-stone-900 rounded-2xl p-5 cursor-pointer hover:border-[#d4af6a]/40 transition-colors">
+                        <summary class="flex justify-between items-center text-xs font-black uppercase tracking-wider text-stone-200 select-none">
+                            What portrait sizes are available?
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#d4af6a] group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="text-xs text-stone-400 mt-4 leading-relaxed">
+                            Commissions can be booked for A4, A3, A2, and large A1 canvas options. Each piece is executed on professional grade paper with custom, high-contrast graphite realism.
+                        </p>
+                    </details>
+
+                    <details class="group bg-[#121212] border border-stone-900 rounded-2xl p-5 cursor-pointer hover:border-[#d4af6a]/40 transition-colors">
+                        <summary class="flex justify-between items-center text-xs font-black uppercase tracking-wider text-stone-200 select-none">
+                            How do delivery and collection work?
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#d4af6a] group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="text-xs text-stone-400 mt-4 leading-relaxed">
+                            We offer local order pickup if you are located in Pretoria. For portrait commissions requested across the rest of South Africa, your completed artwork is securely packaged and dispatched via PostNet courier (+R100).
+                        </p>
+                    </details>
+
+                    <details class="group bg-[#121212] border border-stone-900 rounded-2xl p-5 cursor-pointer hover:border-[#d4af6a]/40 transition-colors">
+                        <summary class="flex justify-between items-center text-xs font-black uppercase tracking-wider text-stone-200 select-none">
+                            What payment methods do you accept?
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-[#d4af6a] group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="text-xs text-stone-400 mt-4 leading-relaxed">
+                            Secure electronic funds transfers (EFT) can be processed straight to our Capitec Bank studio account. Full details including the account number are displayed at the bottom of the page.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+
                     </div>
-                    <div id="chatBox" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4"></div>
-                    <form onsubmit="postChat(event)" class="p-6 border-t border-stone-900 bg-stone-900/20 flex gap-3">
-                        <input type="text" id="chatMsg" placeholder="Say something..." class="flex-1 bg-stone-900/50 border border-stone-800 px-6 py-3 rounded-2xl outline-none text-white font-medium text-sm shadow-inner focus:border-[#d4af6a] transition-colors">
-                        <button type="submit" class="bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 p-4 rounded-2xl shadow-lg active:scale-95 transition-transform"><i data-lucide="send" class="w-5 h-5"></i></button>
-                    </form>
                 </div>
             </div>
         </section>
@@ -207,11 +292,10 @@
     <footer class="bg-stone-950 text-stone-300 border-t border-stone-900">
         <div class="max-w-7xl mx-auto px-6 pt-16 pb-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-stone-900">
-                <!-- Branding Col with Custom Logo Badge -->
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border border-stone-800 shadow-[0_0_15px_rgba(212,175,106,0.15)] overflow-hidden">
-                            <img src="Letter R for Business Logo_20260524_124758_0000.png.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
+                            <img src="Letter R for Business Logo_20260524_124758_0000.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
                         </div>
                         <div>
                             <h4 class="font-display text-lg font-bold text-white tracking-tight leading-none">Bantse's Pencil</h4>
@@ -223,7 +307,6 @@
                     </p>
                 </div>
 
-                <!-- Navigation links -->
                 <div class="space-y-4">
                     <h5 class="text-xs font-black uppercase tracking-[0.2em] text-white">Navigation</h5>
                     <ul class="space-y-2.5 text-xs text-stone-400">
@@ -234,7 +317,6 @@
                     </ul>
                 </div>
 
-                <!-- Artist Direct details -->
                 <div class="space-y-4">
                     <h5 class="text-xs font-black uppercase tracking-[0.2em] text-white">EFT Bank Details</h5>
                     <div class="space-y-1 text-xs text-stone-400">
@@ -248,25 +330,26 @@
                 </div>
             </div>
 
-            <!-- Bottom footer line with Customized Gold-styled WhatsApp and Facebook buttons -->
+            <!-- Bottom footer line -->
             <div class="pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
                 <p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">
-                    TheHandOfXpressions &copy; <span id="year"></span>. All rights reserved.
+                    TheHandOfXpressions &copy; <span id="year">2026</span>. All rights reserved.
                 </p>
                 <div class="flex gap-6 items-center text-[10px] font-bold uppercase tracking-widest">
-                    <!-- WhatsApp Premium Custom Gold Style -->
+                                       <!-- WhatsApp Premium Custom Gold Style -->
                     <a href="https://wa.me/27693944083" target="_blank" class="text-[#d4af6a] hover:text-[#f9e7b9] transition-all flex items-center gap-2 bg-[#121212] hover:bg-[#1a1a1a] px-5 py-2.5 rounded-full border border-[#d4af6a]/30 shadow-md">
                         <svg class="w-3.5 h-3.5 fill-current text-[#d4af6a]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                         </svg>
                         <span>WhatsApp</span>
                     </a>
-                    <!-- Facebook Premium Custom Gold Style -->
+                                       <!-- Facebook Premium Custom Gold Style -->
                     <a href="https://www.facebook.com/share/1E3rWJefYm/" target="_blank" class="text-[#d4af6a] hover:text-[#f9e7b9] transition-all flex items-center gap-2 bg-[#121212] hover:bg-[#1a1a1a] px-5 py-2.5 rounded-full border border-[#d4af6a]/30 shadow-md">
                         <svg class="w-3.5 h-3.5 fill-current text-[#d4af6a]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                         </svg>
                         <span>Facebook</span>
+                    </a>
                     </a>
                 </div>
             </div>
@@ -305,13 +388,11 @@
                 <div>
                     <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">2. Subject & Extra Options</span>
                     <div class="grid grid-cols-1 gap-3">
-                        <!-- Single/Multiple Subject Toggle -->
                         <button id="btnComplexity" onclick="toggleComplexity()" class="py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all bg-stone-900/40">
                             <span class="text-xs uppercase tracking-wider text-stone-300">2+ People / Complex Art</span>
                             <span id="badgeComplexity" class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Standard</span>
                         </button>
 
-                        <!-- Timelapse Video Toggle -->
                         <button id="btnTimelapse" onclick="toggleTimelapse()" class="py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all bg-stone-900/40">
                             <span class="text-xs uppercase tracking-wider text-stone-300">Drawing Timelapse Video</span>
                             <span id="badgeTimelapse" class="text-[9px] font-black px-2 py-0.5 rounded-full uppercase">+ R50</span>
@@ -322,7 +403,6 @@
                 <!-- STEP 3: DELIVERY OPTIONS -->
                 <div>
                     <span class="text-[10px] font-black text-[#d4af6a] uppercase tracking-widest block mb-3">3. Fulfilment & Delivery</span>
-                    <!-- Delivery Selector -->
                     <div class="flex flex-col gap-1.5">
                         <div class="grid grid-cols-2 gap-2">
                             <button id="btnCollect" onclick="setDelivery('collect')" class="py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider">Pretoria Pickup</button>
@@ -357,13 +437,11 @@
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3" id="orderActions">
-                        <!-- Redesigned Luxury Gold WhatsApp Order Button -->
                         <button id="btnWhatsAppSubmit" onclick="submitWhatsApp()" class="w-full bg-gradient-to-r from-[#b8963e] to-[#d4af6a] text-stone-950 py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 shadow-[0_10px_20px_rgba(212,175,106,0.15)] hover:shadow-[0_10px_25px_rgba(212,175,106,0.3)] hover:scale-[1.02] active:scale-95 transition-all duration-300">
-                            <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Order
+                            <i data-lucide="message-square" class="w-4 h-4"></i> WhatsApp
                         </button>
-                        <!-- Redesigned Luxury Hollow Gold Email Order Button -->
                         <button id="btnEmailSubmit" onclick="submitEmail()" class="w-full bg-transparent border border-[#d4af6a]/30 text-[#d4af6a] py-3.5 rounded-xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 hover:bg-[#d4af6a]/10 hover:border-[#d4af6a] active:scale-95 transition-all duration-300">
-                            <i data-lucide="mail" class="w-4 h-4"></i> Email Order
+                            <i data-lucide="mail" class="w-4 h-4"></i> Email
                         </button>
                     </div>
                 </div>
@@ -371,8 +449,8 @@
         </div>
     </div>
 
+    <!-- MAIN JAVASCRIPT CONTROLLERS -->
     <script>
-        // Pricing Database
         const pricing = {
             A4: { bw: 480, col: 580, bwEx: 540, colEx: 680 },
             A3: { bw: 680, col: 780, bwEx: 740, colEx: 880 },
@@ -392,7 +470,6 @@
             document.getElementById('mobileMenu').classList.toggle('hidden');
         }
 
-        // Custom Toast Helper
         function showCustomToast(msg) {
             const toast = document.getElementById('customToast');
             document.getElementById('toastMsg').textContent = msg;
@@ -402,50 +479,6 @@
             }, 3500);
         }
 
-        window.addEventListener('load', () => {
-            document.getElementById('year').textContent = new Date().getFullYear();
-            const checkFB = setInterval(async () => {
-                if (window.fb) {
-                    clearInterval(checkFB);
-                    const { auth, db, appId, onSnapshot, collection, query, signInAnonymously } = window.fb;
-                    await signInAnonymously(auth);
-                    
-                    onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'comments')), s => {
-                        const chats = s.docs.map(d => d.data()).sort((a,b) => a.createdAt - b.createdAt);
-                        document.getElementById('chatBox').innerHTML = chats.map(c => `
-                            <div class="bg-stone-900 p-4 rounded-2xl border border-stone-800 shadow-sm self-start max-w-[85%]">
-                                <p class="text-[9px] font-black text-[#d4af6a] uppercase tracking-widest mb-1">${c.author || 'Visitor'}</p>
-                                <p class="text-xs font-bold text-stone-200 leading-relaxed">${c.text}</p>
-                            </div>
-                        `).join('');
-                        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
-                    });
-                }
-            }, 100);
-        });
-
-        async function postChat(e) {
-            e.preventDefault();
-            const t = document.getElementById('chatMsg').value;
-            if(!t) return;
-            const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), { text: t, createdAt: serverTimestamp(), author: localStorage.getItem('bantseName') || 'Visitor' });
-            document.getElementById('chatMsg').value = '';
-        }
-
-        document.getElementById('fileInput').addEventListener('change', function() {
-            if(this.files.length) {
-                const reader = new FileReader();
-                reader.readAsDataURL(this.files[0]);
-                reader.onload = async e => {
-                    const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery_cloud'), { url: e.target.result, createdAt: serverTimestamp() });
-                    showCustomToast("Portrait shared! Check gallery page.");
-                }
-            }
-        });
-
-        // Interactive Order Initialization
         function openOrder(s) {
             order = { 
                 size: s, 
@@ -460,53 +493,49 @@
             document.getElementById('orderModal').classList.add('show');
         }
 
-        function closeOrder() { document.getElementById('orderModal').classList.remove('show'); }
+        function closeOrder() { 
+            document.getElementById('orderModal').classList.remove('show'); 
+        }
         
-        function setStyle(s) { order.style = s; updateOrderUI(); }
+        function setStyle(s) { 
+            order.style = s; 
+            updateOrderUI(); 
+        }
         
-        // Toggle complexity settings
         function toggleComplexity() { 
             order.isExtra = !order.isExtra; 
             updateOrderUI(); 
         }
         
-        // Toggle drawing video timelapse settings
         function toggleTimelapse() { 
             order.hasTimelapse = !order.hasTimelapse; 
             updateOrderUI(); 
         }
         
-        // Set delivery configurations
         function setDelivery(d) { 
             order.delivery = d; 
             updateOrderUI(); 
         }
 
-        // Active State UI Handler
         function updateOrderUI() {
             const sizeData = pricing[order.size];
             if (!sizeData) return;
 
-            // Highlight Art Style Button
             const isBW = order.style === 'bw';
             document.getElementById('btnBW').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
             document.getElementById('btnColor').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${!isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
 
-            // Highlight Subject Option
             document.getElementById('btnComplexity').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.isExtra ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
             document.getElementById('badgeComplexity').textContent = order.isExtra ? "Multiple/Complex" : "Standard";
             document.getElementById('badgeComplexity').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.isExtra ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
 
-            // Highlight Timelapse Option
             document.getElementById('btnTimelapse').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.hasTimelapse ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
             document.getElementById('badgeTimelapse').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.hasTimelapse ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
 
-            // Highlight Delivery choice
             const isCollect = order.delivery === 'collect';
             document.getElementById('btnCollect').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
             document.getElementById('btnShipping').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${!isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
 
-            // Dynamic Price Calculations
             let base = 0;
             if (isBW) {
                 base = order.isExtra ? sizeData.bwEx : sizeData.bw;
@@ -520,16 +549,17 @@
             const finalTotal = base + deliveryCost + timelapseCost;
             document.getElementById('totalDisplay').textContent = "R" + finalTotal;
 
-            // Invoice Description Update
             const desc = `${order.size} | ${isBW ? 'B&W' : 'Color'} | ${order.isExtra ? 'Complex' : '1 Subject'} ${order.hasTimelapse ? '+ Video' : ''}`;
             document.getElementById('invoiceDetails').textContent = desc;
         }
 
-        // Email Submission with Details Verification
         async function submitEmail() {
             const n = document.getElementById('custName').value.trim();
             const e = document.getElementById('custEmail').value.trim();
-            if(!n || !e) return alert("Verify Client Info: Please enter both your Name and Email Address.");
+            if(!n || !e) {
+                showCustomToast("Please enter both your Name and Email Address.");
+                return;
+            }
             
             const total = document.getElementById('totalDisplay').textContent;
             const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
@@ -557,14 +587,16 @@
                 showCustomToast("E-mail order sent! Thank you.");
                 closeOrder();
             } catch (err) {
-                alert("Form submission error. Please use WhatsApp fallback.");
+                showCustomToast("Form submission error. Please use WhatsApp fallback.");
             }
         }
 
-        // WhatsApp Submission
         function submitWhatsApp() {
             const n = document.getElementById('custName').value.trim();
-            if(!n) return alert("Verify Client Info: Please enter your Full Name.");
+            if(!n) {
+                showCustomToast("Please enter your Full Name.");
+                return;
+            }
             
             const total = document.getElementById('totalDisplay').textContent;
             const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
@@ -583,6 +615,89 @@
 
             window.open(`https://wa.me/27693944083?text=${msg}`, '_blank');
         }
+
+        // LAZY REVEAL OBSERVER SETUP
+        function initLazyReveal() {
+            const options = {
+                root: null,
+                threshold: 0.1,
+                rootMargin: "0px 0px -40px 0px"
+            };
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Custom lazy timed stagger delay
+                        const delay = entry.target.getAttribute('data-delay') || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('revealed');
+                        }, parseInt(delay));
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.lazy-reveal').forEach(el => {
+                revealObserver.observe(el);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            // Initialize lazy transitions
+            initLazyReveal();
+
+            const checkFB = setInterval(async () => {
+                if (window.fb) {
+                    clearInterval(checkFB);
+                    const { auth, db, appId, onSnapshot, collection, query, signInAnonymously } = window.fb;
+                    await signInAnonymously(auth);
+                    
+                    onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'comments')), s => {
+                        const chats = s.docs.map(d => d.data()).sort((a,b) => a.createdAt - b.createdAt);
+                        document.getElementById('chatBox').innerHTML = chats.map(c => `
+                            <div class="bg-stone-900 p-4 rounded-2xl border border-stone-800 shadow-sm self-start max-w-[85%]">
+                                <p class="text-[9px] font-black text-[#d4af6a] uppercase tracking-widest mb-1">${c.author || 'Visitor'}</p>
+                                <p class="text-xs font-bold text-stone-200 leading-relaxed">${c.text}</p>
+                            </div>
+                        `).join('');
+                        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+                    });
+                }
+            }, 100);
+        });
+
+        async function postChat(e) {
+            e.preventDefault();
+            const t = document.getElementById('chatMsg').value.trim();
+            if(!t) return;
+            const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), { 
+                text: t, 
+                createdAt: serverTimestamp(), 
+                author: localStorage.getItem('bantseName') || 'Visitor' 
+            });
+            document.getElementById('chatMsg').value = '';
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            if(this.files.length) {
+                const reader = new FileReader();
+                reader.readAsDataURL(this.files[0]);
+                reader.onload = async e => {
+                    const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery_cloud'), { 
+                        url: e.target.result, 
+                        createdAt: serverTimestamp() 
+                    });
+                    showCustomToast("Portrait shared! Check gallery page.");
+                }
+            }
+        });
     </script>
 </body>
 </html>
