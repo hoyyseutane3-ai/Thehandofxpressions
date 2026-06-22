@@ -102,6 +102,34 @@
         }
     </style>
 </head>
+<div id="page-preloader" class="fixed inset-0 bg-[#0a0a0a] z-[200] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
+    <div class="relative flex flex-col items-center">
+        <div class="absolute w-40 h-40 bg-[#d4af6a]/5 rounded-full blur-3xl animate-pulse"></div>
+        
+        <div class="w-16 h-16 border-2 border-stone-800 border-t-[#d4af6a] rounded-full animate-spin mb-6 shadow-[0_0_20px_rgba(212,175,106,0.1)]"></div>
+        
+        <h1 class="font-display text-lg font-black tracking-[0.2em] text-white uppercase text-center">
+            Bantse's Pencil
+        </h1>
+        <span class="text-[9px] text-[#d4af6a] font-bold uppercase tracking-[0.3em] mt-1.5 animate-pulse">
+            TheHandOfXpressions
+        </span>
+    </div>
+</div>
+
+<script>
+    // Fades out and removes the preloader cleanly once everything is completely loaded
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('page-preloader');
+        if (preloader) {
+            preloader.classList.add('opacity-0', 'pointer-events-none');
+            // Completely clear from view layout after transition completes
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 700);
+        }
+    });
+</script>
 
 <body class="overflow-x-hidden min-h-screen flex flex-col">
 
@@ -110,6 +138,7 @@
         <i data-lucide="sparkles" class="w-4 h-4"></i>
         <span id="toastMsg">Action Successful</span>
     </div>
+    
 
     <!-- HEADER -->
     <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0a0a0a]/95 border-b border-[#d4af6a]/15 shadow-lg">
@@ -130,7 +159,7 @@
                 <a href="#catalog" class="hover:text-[#d4af6a] transition-colors">Catalog</a>
                 <a href="gallery.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">Gallery <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#d4af6a]"></i></a>
                 <a href="tiktok.html" class="hover:text-[#d4af6a] transition-colors flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-3.5 h-3.5 text-[#d4af6a]"></i></a>
-                <a href="#community" class="hover:text-[#d4af6a] transition-colors">Community</a>
+
             </nav>
 
             <button onclick="toggleMenu()" class="md:hidden p-2 text-stone-300">
@@ -143,7 +172,7 @@
             <a href="#catalog" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Catalog</a>
             <a href="gallery.html" class="block text-sm font-bold uppercase tracking-widest text-stone-300 flex items-center gap-1 hover:text-[#d4af6a]">Gallery <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#d4af6a]"></i></a>
             <a href="tiktok.html" class="block text-sm font-bold uppercase tracking-widest text-[#d4af6a] flex items-center gap-1">BANTSE'S STUDIO <i data-lucide="play-circle" class="w-4 h-4"></i></a>
-            <a href="#community" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Community</a>
+           
         </div>
     </header>
 

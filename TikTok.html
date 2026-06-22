@@ -90,6 +90,34 @@
             <a href="index.html#community" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-300 hover:text-[#d4af6a]">Community</a>
         </div>
     </header>
+<div id="page-preloader" class="fixed inset-0 bg-[#0a0a0a] z-[200] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
+    <div class="relative flex flex-col items-center">
+        <div class="absolute w-40 h-40 bg-[#d4af6a]/5 rounded-full blur-3xl animate-pulse"></div>
+        
+        <div class="w-16 h-16 border-2 border-stone-800 border-t-[#d4af6a] rounded-full animate-spin mb-6 shadow-[0_0_20px_rgba(212,175,106,0.1)]"></div>
+        
+        <h1 class="font-display text-lg font-black tracking-[0.2em] text-white uppercase text-center">
+            Bantse's Pencil
+        </h1>
+        <span class="text-[9px] text-[#d4af6a] font-bold uppercase tracking-[0.3em] mt-1.5 animate-pulse">
+            TheHandOfXpressions
+        </span>
+    </div>
+</div>
+
+<script>
+    // Fades out and removes the preloader cleanly once everything is completely loaded
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('page-preloader');
+        if (preloader) {
+            preloader.classList.add('opacity-0', 'pointer-events-none');
+            // Completely clear from view layout after transition completes
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 700);
+        }
+    });
+</script>
 
     <!-- MAIN STUDIO AREA -->
     <main class="max-w-7xl mx-auto w-full px-6 flex-1 py-16">

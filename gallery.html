@@ -47,7 +47,18 @@
             display: flex; 
             opacity: 1;
         }
+                /* LAZY LAUNCH SCROLL-UP SYSTEM */
+        .lazy-reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
         
+        .lazy-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
         /* Premium Obsidian & Gold Frame */
         .frame-style { 
             position: relative;
@@ -91,7 +102,37 @@
             pointer-events: none;
         }
     </style>
+    
 </head>
+<div id="page-preloader" class="fixed inset-0 bg-[#0a0a0a] z-[200] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
+    <div class="relative flex flex-col items-center">
+        <div class="absolute w-40 h-40 bg-[#d4af6a]/5 rounded-full blur-3xl animate-pulse"></div>
+        
+        <div class="w-16 h-16 border-2 border-stone-800 border-t-[#d4af6a] rounded-full animate-spin mb-6 shadow-[0_0_20px_rgba(212,175,106,0.1)]"></div>
+        
+        <h1 class="font-display text-lg font-black tracking-[0.2em] text-white uppercase text-center">
+            Bantse's Pencil
+        </h1>
+        <span class="text-[9px] text-[#d4af6a] font-bold uppercase tracking-[0.3em] mt-1.5 animate-pulse">
+            TheHandOfXpressions
+        </span>
+    </div>
+</div>
+
+<script>
+    // Fades out and removes the preloader cleanly once everything is completely loaded
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('page-preloader');
+        if (preloader) {
+            preloader.classList.add('opacity-0', 'pointer-events-none');
+            // Completely clear from view layout after transition completes
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 700);
+        }
+    });
+</script>
+
 <body class="overflow-x-hidden min-h-screen flex flex-col">
 
     <!-- HEADER -->
@@ -122,7 +163,7 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
                 <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-[#d4af6a] block mb-3">Exquisite Custom Realism</span>
-                <h2 class="text-3xl sm:text-5xl font-display font-black text-white tracking-tight uppercase">The Gallery</h2>
+                <h2 class="text-3xl sm:text-5xl font-display font-black text-white tracking-tight uppercase">BANTSE'S Gallery</h2>
                 <div class="w-16 h-[2px] bg-gradient-to-r from-[#b8963e] to-[#d4af6a] mt-4"></div>
             </div>
             <p class="text-xs text-stone-400 max-w-sm leading-relaxed">
@@ -211,8 +252,8 @@
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
         <!-- Gold Framed Container Inside Lightbox -->
-        <div class="lightbox-frame m-4 flex items-center justify-center overflow-hidden" onclick="event.stopPropagation()">
-            <img id="lightboxImg" src="" class="max-w-full max-h-[70vh] object-contain rounded-sm shadow-inner">
+        <div class="lightbox-frame m-4 flex items-center justify-center overflow-hidden lazy-reveal" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" class="max-w-full max-h-[70vh] object-contain rounded-sm shadow-inner lazy-reveal">
         </div>
     </div>
 
@@ -230,7 +271,7 @@
             "FB_IMG_1777810117180.jpg",
             "FB_IMG_1777810142298.jpg",
             "FB_IMG_1777810148967.jpg",
-            "FB_IMG_1777810169641.jpg","FB_IMG_1777810176594.jpg"
+            "FB_IMG_1777810169641.jpg","FB_IMG_1777810176594.jpg" 
         ];
 
         window.addEventListener('load', () => {
@@ -254,7 +295,7 @@
         function renderGallery(imgs) {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = imgs.map(src => `
-                <div onclick="openLightbox('${src}')" class="frame-style cursor-pointer overflow-hidden aspect-square flex items-center justify-center">
+                <div onclick="openLightbox('${src}')" class="frame-style cursor-pointer overflow-hidden aspect-square flex items-center justify-center ">
                     <img src="${src}" class="w-full h-full object-cover rounded-sm" onerror="this.src='https://placehold.co/400x400/222/999?text=Portrait'">
                 </div>
             `).join('');
