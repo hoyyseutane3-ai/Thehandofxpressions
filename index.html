@@ -1,11 +1,12 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9524748387567951"
      crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheHandOfXpressions | Bantse's Pencil</title>
+    <title>TheHandOfXpressions | Bantse's Pencil - Handcrafted Realism Art</title>
 
     <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +28,7 @@
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,400;1,600&display=swap');
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -36,6 +37,7 @@
             color: #0f0f0f; 
         }
         .font-display { font-family: 'Cinzel', serif; }
+        .font-serif-italic { font-family: 'Playfair Display', serif; font-style: italic; }
         
         /* Modal Transitions */
         .modal-container { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 100; }
@@ -50,11 +52,20 @@
             padding: 8px; 
             background: #141414; 
             box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 35px rgba(0,0,0,0.4); 
+            position: relative;
+        }
+
+        .frame-style::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(224, 189, 114, 0.15) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 100%);
+            pointer-events: none;
         }
 
         /* Swapped Frame Style for Gallery Marquee */
         .gold-frame {
-            width: 220px;
+            width: 230px;
             aspect-ratio: 3/4;
             flex-shrink: 0;
             border: 10px solid #0d0d0d;
@@ -62,10 +73,14 @@
             padding: 8px;
             background: #141414;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
         .gold-frame:hover {
-            transform: scale(1.05) translateY(-5px);
+            transform: scale(1.08) translateY(-8px);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.8), 0 0 25px rgba(224, 189, 114, 0.4);
+            outline-color: #ffffff;
         }
         .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -74,11 +89,19 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         @keyframes lazyFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(0.5deg); }
         }
         .animate-lazy {
-            animation: lazyFloat 4s ease-in-out infinite;
+            animation: lazyFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(224, 189, 114, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(224, 189, 114, 0.5); }
+        }
+        .animate-gold-glow {
+            animation: goldGlow 3s ease-in-out infinite;
         }
 
         /* LAZY LAUNCH SCROLL-UP SYSTEM */
@@ -99,7 +122,7 @@
             display: flex;
             width: max-content;
             gap: 2rem;
-            animation: scrollLeft 25s linear infinite;
+            animation: scrollLeft 28s linear infinite;
         }
         .marquee-track:hover {
             animation-play-state: paused;
@@ -113,19 +136,47 @@
         .glass-dark-card {
             background: rgba(13, 13, 13, 0.92);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(224, 189, 114, 0.2);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+        .glass-dark-card:hover {
+            border-color: rgba(224, 189, 114, 0.5);
+        }
+
+        /* Fine Paper Grain Texture Simulation Overlay */
+        .paper-grain-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Shimmer Banner Line */
+        .gold-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(224, 189, 114, 0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
     </style>
 </head>
 
-<body class="overflow-x-hidden min-h-screen flex flex-col relative">
+<body class="overflow-x-hidden min-h-screen flex flex-col relative antialiased">
+
+    <!-- SUBTLE PAPER GRAIN OVERLAY FOR ARTISTIC REALISM -->
+    <div class="paper-grain-overlay"></div>
 
     <!-- SPLIT-VIDEO BACKGROUND SYSTEM (SCROLLS WITH PAGE) -->
     <div class="absolute inset-x-0 top-0 h-screen -z-50 pointer-events-none overflow-hidden flex flex-col md:flex-row">
         <!-- Overlay to ensure text readability -->
         <div class="absolute inset-0 bg-[#ba9143]/40 mix-blend-multiply z-20"></div>
-        <div class="absolute inset-0 bg-black/20 z-25"></div>
+        <div class="absolute inset-0 bg-black/30 z-25"></div>
 
         <!-- Video Container 1 -->
         <div class="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
@@ -135,7 +186,7 @@
         </div>
 
         <!-- Glowing Dark Divider Line -->
-        <div class="w-full h-[2px] md:h-full md:w-[2px] bg-gradient-to-r md:bg-gradient-to-b from-transparent via-[#0d0d0d] to-transparent z-30 shadow-[0_0_15px_#0d0d0d]"></div>
+        <div class="w-full h-[2px] md:h-full md:w-[2px] bg-gradient-to-r md:bg-gradient-to-b from-transparent via-[#0d0d0d] to-transparent z-30 shadow-[0_0_20px_#0d0d0d]"></div>
 
         <!-- Video Container 2 -->
         <div class="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
@@ -158,15 +209,15 @@
     <!-- PRELOADER -->
     <div id="page-preloader" class="fixed inset-0 bg-[#0d0d0d] z-[200] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
         <div class="relative flex flex-col items-center">
-            <div class="absolute w-40 h-40 bg-[#ba9143]/20 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute w-44 h-44 bg-[#ba9143]/20 rounded-full blur-3xl animate-pulse"></div>
             
-            <div class="w-16 h-16 border-2 border-stone-800 border-t-[#e0bd72] rounded-full animate-spin mb-6 shadow-[0_0_20px_rgba(224,189,114,0.3)]"></div>
+            <div class="w-20 h-20 border-2 border-stone-800 border-t-[#e0bd72] rounded-full animate-spin mb-6 shadow-[0_0_25px_rgba(224,189,114,0.4)]"></div>
             
-            <h1 class="font-display text-xl font-black tracking-[0.25em] text-[#e0bd72] uppercase text-center">
+            <h1 class="font-display text-2xl font-black tracking-[0.3em] text-[#e0bd72] uppercase text-center">
                 Bantse's Pencil
             </h1>
-            <span class="text-[10px] text-stone-400 font-bold uppercase tracking-[0.3em] mt-2 animate-pulse">
-                TheHandOfXpressions
+            <span class="text-[10px] text-stone-400 font-bold uppercase tracking-[0.35em] mt-2 animate-pulse">
+                TheHandOfXpressions • Studio Realism
             </span>
         </div>
     </div>
@@ -184,8 +235,8 @@
     </script>
 
     <!-- TOAST NOTIFICATION -->
-    <div id="customToast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] bg-[#0d0d0d] border border-[#e0bd72]/40 text-[#e0bd72] px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl flex items-center gap-2 transform -translate-y-4 opacity-0 transition-all duration-300 pointer-events-none">
-        <i data-lucide="sparkles" class="w-4 h-4 text-[#e0bd72]"></i>
+    <div id="customToast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] bg-[#0d0d0d] border border-[#e0bd72]/50 text-[#e0bd72] px-7 py-3.5 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl flex items-center gap-3 transform -translate-y-4 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="sparkles" class="w-4 h-4 text-[#e0bd72] animate-spin"></i>
         <span id="toastMsg">Action Successful</span>
     </div>
 
@@ -193,21 +244,24 @@
     <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0d0d0d]/90 border-b border-[#e0bd72]/30 shadow-2xl">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <!-- Logo with Custom Image Badge -->
-            <div class="flex items-center gap-3.5 cursor-pointer" onclick="window.location.reload()">
-                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border-2 border-[#e0bd72] shadow-[0_0_20px_rgba(224,189,114,0.3)] overflow-hidden animate-pulse">
+            <div class="flex items-center gap-3.5 cursor-pointer group" onclick="window.location.reload()">
+                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border-2 border-[#e0bd72] shadow-[0_0_20px_rgba(224,189,114,0.3)] overflow-hidden group-hover:scale-105 transition-transform duration-300">
                     <img src="Letter R for Business Logo_20260524_124758_0000.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
                 </div>
                 <div class="flex flex-col">
-                    <h1 class="text-base sm:text-xl font-display font-black tracking-wider text-white leading-tight">Bantse's Pencil</h1>
+                    <h1 class="text-base sm:text-xl font-display font-black tracking-wider text-white leading-tight group-hover:text-[#e0bd72] transition-colors">Bantse's Pencil</h1>
                     <span class="text-[9px] text-[#e0bd72] font-bold uppercase tracking-[0.25em]">TheHandOfXpressions</span>
                 </div>
             </div>
 
             <!-- Nav linking -->
             <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-stone-200">
-                <a href="#catalog" class="hover:text-[#e0bd72] transition-colors">Catalog</a>
+                <a href="#catalog" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5 text-[#e0bd72]"></i> Catalog</a>
+                <a href="#craftsmanship" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1.5"><i data-lucide="feather" class="w-3.5 h-3.5 text-[#e0bd72]"></i> Craft</a>
                 <a href="gallery.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1">Gallery <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#e0bd72]"></i></a>
-                <a href="tiktok.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-3.5 h-3.5 text-[#e0bd72]"></i></a>
+                <a href="tiktok.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1 bg-[#1a1a1a] px-4 py-2 rounded-full border border-[#e0bd72]/40 text-[#e0bd72]">
+                    <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> Studio Shorts
+                </a>
             </nav>
 
             <button onclick="toggleMenu()" class="md:hidden p-2 text-stone-200 hover:text-[#e0bd72]">
@@ -218,6 +272,7 @@
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="absolute w-full bg-[#0d0d0d] border-t border-[#e0bd72]/30 p-6 hidden flex-col gap-4 shadow-2xl z-35">
             <a href="#catalog" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-200 hover:text-[#e0bd72]">Catalog</a>
+            <a href="#craftsmanship" onclick="toggleMenu()" class="block text-sm font-bold uppercase tracking-widest text-stone-200 hover:text-[#e0bd72]">Craftsmanship Process</a>
             <a href="gallery.html" class="block text-sm font-bold uppercase tracking-widest text-stone-200 flex items-center gap-1 hover:text-[#e0bd72]">Gallery <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#e0bd72]"></i></a>
             <a href="tiktok.html" class="block text-sm font-bold uppercase tracking-widest text-[#e0bd72] flex items-center gap-1">BANTSE'S STUDIO <i data-lucide="play-circle" class="w-4 h-4"></i></a>
         </div>
@@ -227,26 +282,57 @@
         <!-- 1. HERO SECTION -->
         <section class="py-20 sm:py-28 text-center px-6 relative overflow-hidden">
             <div class="max-w-4xl mx-auto relative z-10">
-                <span class="px-5 py-2 rounded-full border-2 border-[#e0bd72] bg-[#0d0d0d] text-[#e0bd72] text-[10px] font-black tracking-[0.25em] uppercase mb-8 inline-block shadow-2xl">
-                    Professional Framing Included
-                </span>
+                
+                <!-- Studio Live Availability Badge -->
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full border-2 border-[#e0bd72] bg-[#0d0d0d] text-[#e0bd72] text-[10px] font-black tracking-[0.25em] uppercase mb-8 shadow-2xl animate-gold-glow">
+                    
+                    <span>Professional Framing Included • Direct Studio Delivery</span>
+                </div>
 
                 <!-- Dark background card for hero header text pop -->
-                <div class="glass-dark-card p-8 sm:p-12 rounded-[2.5rem] mb-12 shadow-2xl border border-white/10">
+                <div class="glass-dark-card p-8 sm:p-14 rounded-[2.5rem] mb-12 shadow-2xl border border-white/10 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-[#e0bd72]/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
                     <h2 class="text-4xl sm:text-6xl lg:text-7xl font-display font-black text-white mb-6 uppercase tracking-wider leading-none">
-                        The Hand<br><span class="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#e0bd72] via-[#f7e3b5] to-[#c9a054] italic font-normal font-serif">of</span> Xpressions
+                        The Hand<br><span class="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#e0bd72] via-[#f7e3b5] to-[#c9a054] font-serif-italic capitalize font-normal px-2">of</span> Xpressions
                     </h2>
-                    <p class="text-stone-300 text-xs sm:text-sm font-medium tracking-wide max-w-lg mx-auto">
-                        Master graphite portraiture handcrafted in Pretoria. Immortalizing human emotion with precision pencil art.
+                    <p class="text-stone-300 text-xs sm:text-sm font-medium tracking-wide max-w-xl mx-auto leading-relaxed">
+                        Master charcoal portraiture handcrafted in Pretoria. Immortalizing human emotion, legacy, and timeless expressions with ultra-precise pencil craftsmanship.
                     </p>
+
+                    <!-- Key Craft Highlights Grid -->
+                    <div class="mt-8 pt-8 border-t border-stone-800/80 grid grid-cols-3 gap-3 text-center max-w-lg mx-auto">
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg font-display font-black text-[#e0bd72]">100%</span>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-stone-400 mt-1">Hand-Drawn</span>
+                        </div>
+                        <div class="flex flex-col items-center border-x border-stone-800">
+                            <span class="text-lg font-display font-black text-[#e0bd72]">MTR</span>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-stone-400 mt-1">charcoal,<br>graphite.</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-lg font-display font-black text-[#e0bd72]">Pretoria</span>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-stone-400 mt-1">SA Courier</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="frame-style max-w-[260px] sm:max-w-[320px] mx-auto mb-12 animate-lazy">
-                    <img src="FB_IMG_1755412675386.jpg" alt="Featured Drawing" class="w-full aspect-[3/4] object-cover rounded-sm">
+                <!-- Featured Art Showcase Frame -->
+                <div class="relative group max-w-[270px] sm:max-w-[330px] mx-auto mb-12 animate-lazy">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-[#e0bd72] via-[#ba9143] to-[#e0bd72] rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-500"></div>
+                    <div class="frame-style relative">
+                        <img src="FB_IMG_1755412675386.jpg" alt="Featured Drawing" class="w-full aspect-[3/4] object-cover rounded-sm">
+                        <div class="absolute bottom-4 left-4 right-4 bg-[#0d0d0d]/90 backdrop-blur-md border border-[#e0bd72]/40 p-2.5 text-center rounded-xl shadow-lg">
+                            <p class="text-[10px] font-black uppercase text-[#e0bd72] tracking-widest">Bantse mampana</p>
+                            <p class="text-[9px] text-stone-300 font-semibold">PENCIL ARTIST</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto">
-                    <a href="#catalog" class="bg-[#0d0d0d] border-2 border-[#e0bd72] text-[#e0bd72] hover:bg-[#e0bd72] hover:text-[#0d0d0d] py-4 px-8 rounded-2xl font-black text-xs uppercase shadow-2xl text-center transition-all duration-300 transform hover:-translate-y-1">Order Portrait</a>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+                    <a href="#catalog" class="bg-[#0d0d0d] border-2 border-[#e0bd72] text-[#e0bd72] hover:bg-[#e0bd72] hover:text-[#0d0d0d] py-4 px-8 rounded-2xl font-black text-xs uppercase shadow-2xl text-center transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> Order Commission
+                    </a>
                     <a href="gallery.html" class="bg-[#0d0d0d]/90 border-2 border-stone-800 text-white py-4 px-8 rounded-2xl font-black text-xs uppercase hover:border-[#e0bd72] hover:text-[#e0bd72] text-center transition-all duration-300 flex items-center justify-center gap-2 shadow-2xl transform hover:-translate-y-1">
                         <i data-lucide="camera" class="w-4 h-4 text-[#e0bd72]"></i> Enter Gallery
                     </a>
@@ -259,6 +345,9 @@
 
         <!-- 2. HORIZONTAL GALLERY SLIDESHOW -->
         <div class="slideshow-outer overflow-hidden w-full bg-[#0d0d0d]/95 py-10 border-y-2 border-[#e0bd72]/30 shadow-2xl lazy-reveal" data-delay="100">
+            <div class="text-center mb-6">
+                <span class="text-[9px] font-black uppercase tracking-[0.35em] text-[#e0bd72]">The best from the gallery</span>
+            </div>
             <div class="marquee-track">
                 <div class="gold-frame"><img src="FB_IMG_1777339383702.jpg" alt="Art 1"></div>
                 <div class="gold-frame"><img src="FB_IMG_1777339391290.jpg" alt="Art 2"></div>
@@ -274,29 +363,56 @@
             </div>
         </div>
 
-        <!-- 3. COMMISSION PRICING CATALOG -->
+        <!-- 3. ARTISTIC MANIFESTO / PHILOSOPHY -->
+        <section class="py-20 max-w-5xl mx-auto px-6 lazy-reveal" data-delay="100">
+            <div class="glass-dark-card p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden border border-[#e0bd72]/30 text-center">
+                <div class="w-12 h-12 bg-[#0d0d0d] border border-[#e0bd72]/40 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                    <i data-lucide="quote" class="w-5 h-5 text-[#e0bd72]"></i>
+                </div>
+                <h3 class="font-display text-2xl sm:text-3xl font-black text-white uppercase tracking-wider mb-4">
+                    "Painting is poetry that is seen rather than felt, and poetry is painting that is felt rather than seen."
+                </h3>
+                <p class="text-stone-300 text-xs sm:text-sm italic font-serif leading-relaxed max-w-2xl mx-auto">
+                    Every stroke of charcoal and blend of graphite in Bantse's studio is doone with pure emotion. From small highlights in the eyes to tiny-textures of skin tone, each artwork comes fully alive and framed, ready to bless your eye.
+                </p>
+                <div class="mt-6 flex justify-center items-center gap-3">
+                    <div class="h-[1px] w-12 bg-[#e0bd72]/40"></div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72]">Leonardo da Vinci</span>
+                    <div class="h-[1px] w-12 bg-[#e0bd72]/40"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. COMMISSION PRICING CATALOG -->
         <section id="catalog" class="py-24 max-w-7xl mx-auto px-6 relative">
             <div class="text-center mb-16 lazy-reveal" data-delay="100">
                 <span class="px-4 py-1.5 rounded-full bg-[#0d0d0d] text-[#e0bd72] border border-[#e0bd72]/40 text-[10px] font-black uppercase tracking-[0.3em] inline-block mb-4 shadow-xl">Exquisite Custom Realism</span>
                 <h3 class="font-display text-4xl sm:text-5xl font-black text-[#0d0d0d] drop-shadow-md">Commission Catalog</h3>
+                <p class="text-stone-900 font-bold text-xs max-w-md mx-auto mt-2 uppercase tracking-wider">Select canvas size to configure options & instant quote</p>
                 <div class="w-20 h-1 bg-[#0d0d0d] mx-auto mt-4 rounded-full"></div>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- A4 -->
                 <div onclick="openOrder('A4', 480, 580, 540, 680)" class="glass-dark-card p-8 rounded-[2rem] border-2 border-stone-800 hover:border-[#e0bd72] cursor-pointer shadow-2xl transition-all group transform hover:-translate-y-2.5 duration-300 lazy-reveal" data-delay="100">
-                    <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a4</span>
+                    <div class="flex justify-between items-start">
+                        <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a4 size</span>
+                        <i data-lucide="sparkles" class="w-4 h-4 text-[#e0bd72] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#e0bd72] transition-colors">A4 Portrait</h4>
-                    <p class="text-stone-400 text-xs mt-2">Compact & intimate personal gift</p>
+                    <p class="text-stone-400 text-xs mt-2">Compact & intimate personal gift. Perfect for single subject portraits.</p>
                     <div class="mt-8 pt-6 border-t border-stone-800/80 flex justify-between text-[10px] font-black text-stone-300 uppercase tracking-wider">
                         <span>B&W R480</span><span class="text-[#e0bd72]">COLOR R580</span>
                     </div>
                 </div>
                 <!-- A3 -->
                 <div onclick="openOrder('A3', 680, 780, 740, 880)" class="glass-dark-card p-8 rounded-[2rem] border-2 border-stone-800 hover:border-[#e0bd72] cursor-pointer shadow-2xl transition-all group transform hover:-translate-y-2.5 duration-300 lazy-reveal" data-delay="200">
-                    <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a3</span>
+                    <div class="flex justify-between items-start">
+                        <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a3 size</span>
+                        <i data-lucide="sparkles" class="w-4 h-4 text-[#e0bd72] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#e0bd72] transition-colors">A3 Portrait</h4>
-                    <p class="text-stone-400 text-xs mt-2">Standard display size with rich detail</p>
+                    <p class="text-stone-400 text-xs mt-2">Standard display size with rich facial detail and high depth contrast.</p>
                     <div class="mt-8 pt-6 border-t border-stone-800/80 flex justify-between text-[10px] font-black text-stone-300 uppercase tracking-wider">
                         <span>B&W R680</span><span class="text-[#e0bd72]">COLOR R780</span>
                     </div>
@@ -304,18 +420,24 @@
                 <!-- A2 -->
                 <div onclick="openOrder('A2', 1400, 1700, 1800, 2000)" class="glass-dark-card p-8 rounded-[2rem] border-2 border-[#e0bd72] cursor-pointer shadow-2xl hover:scale-[1.03] transition-all relative overflow-hidden group transform hover:-translate-y-2.5 duration-300 lazy-reveal" data-delay="300">
                     <div class="absolute top-0 right-0 bg-[#e0bd72] text-[#0d0d0d] font-black text-[8px] uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">Most Popular</div>
-                    <span class="bg-[#e0bd72] text-[#0d0d0d] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a2 ★</span>
+                    <div class="flex justify-between items-start">
+                        <span class="bg-[#e0bd72] text-[#0d0d0d] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a2 size ★</span>
+                        <i data-lucide="award" class="w-4 h-4 text-[#e0bd72]"></i>
+                    </div>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#e0bd72] transition-colors">A2 Portrait</h4>
-                    <p class="text-stone-400 text-xs mt-2">Grand centerpiece size for major statement</p>
+                    <p class="text-stone-400 text-xs mt-2">Grand centerpiece size for major family statement pieces & couple artworks.</p>
                     <div class="mt-8 pt-6 border-t border-stone-800/80 flex justify-between text-[10px] font-black text-stone-200 uppercase tracking-wider">
                         <span>B&W R1400</span><span class="text-[#e0bd72]">COLOR R1700</span>
                     </div>
                 </div>
                 <!-- A1 -->
                 <div onclick="openOrder('A1', 2700, 2900, 3100, 3400)" class="glass-dark-card p-8 rounded-[2rem] border-2 border-stone-800 hover:border-[#e0bd72] cursor-pointer shadow-2xl transition-all group transform hover:-translate-y-2.5 duration-300 lazy-reveal" data-delay="400">
-                    <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a1</span>
+                    <div class="flex justify-between items-start">
+                        <span class="bg-black border border-stone-700 text-[#e0bd72] text-[10px] font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-md">a1 size</span>
+                        <i data-lucide="crown" class="w-4 h-4 text-[#e0bd72] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
                     <h4 class="font-display text-2xl font-bold mt-6 text-white group-hover:text-[#e0bd72] transition-colors">A1 Portrait</h4>
-                    <p class="text-stone-400 text-xs mt-2">Masterpiece gallery canvas scale</p>
+                    <p class="text-stone-400 text-xs mt-2">Masterpiece gallery scale canvas designed to transform entire living spaces.</p>
                     <div class="mt-8 pt-6 border-t border-stone-800/80 flex justify-between text-[10px] font-black text-stone-300 uppercase tracking-wider">
                         <span>B&W R2700</span><span class="text-[#e0bd72]">COLOR R2900</span>
                     </div>
@@ -323,7 +445,41 @@
             </div>
         </section>
 
-        <!-- 4. PREMIUM PORTRAIT Q&A -->
+        <!-- 5. FOUR-STEP CRAFTSMANSHIP PROCESS -->
+        <section id="craftsmanship" class="py-20 max-w-7xl mx-auto px-6 lazy-reveal" data-delay="100">
+            <div class="text-center mb-16">
+                <span class="px-4 py-1.5 rounded-full bg-[#0d0d0d] text-[#e0bd72] border border-[#e0bd72]/40 text-[10px] font-black uppercase tracking-[0.3em] inline-block mb-3 shadow-xl">Precision Artistry</span>
+                <h3 class="font-display text-3xl sm:text-4xl font-black text-[#0d0d0d]">How Your Portrait Is Created</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-dark-card p-6 rounded-2xl relative border border-stone-800">
+                    <div class="text-[#e0bd72] font-display text-3xl font-black mb-3">01</div>
+                    <h5 class="text-white text-sm font-bold uppercase tracking-wider mb-2">Photo Review</h5>
+                    <p class="text-stone-400 text-xs leading-relaxed">Send your photo via WhatsApp or Email. We assess photo lighting, sharpness, and key features.</p>
+                </div>
+
+                <div class="glass-dark-card p-6 rounded-2xl relative border border-stone-800">
+                    <div class="text-[#e0bd72] font-display text-3xl font-black mb-3">02</div>
+                    <h5 class="text-white text-sm font-bold uppercase tracking-wider mb-2">Graphite Sketching</h5>
+                    <p class="text-stone-400 text-xs leading-relaxed">Proportional mapping using artist-grade Staedtler pencils on heavyweight archival paper.</p>
+                </div>
+
+                <div class="glass-dark-card p-6 rounded-2xl relative border border-stone-800">
+                    <div class="text-[#e0bd72] font-display text-3xl font-black mb-3">03</div>
+                    <h5 class="text-white text-sm font-bold uppercase tracking-wider mb-2">Deep Realism Shading</h5>
+                    <p class="text-stone-400 text-xs leading-relaxed">Multi-layer charcoal and graphite blending to create skin texture, depth, and vivid realism.</p>
+                </div>
+
+                <div class="glass-dark-card p-6 rounded-2xl relative border border-stone-800">
+                    <div class="text-[#e0bd72] font-display text-3xl font-black mb-3">04</div>
+                    <h5 class="text-white text-sm font-bold uppercase tracking-wider mb-2">Framing & Courier</h5>
+                    <p class="text-stone-400 text-xs leading-relaxed">Protected with museum backing, custom obsidian-framed, and securely dispatched nationwide.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. PREMIUM PORTRAIT Q&A -->
         <section class="py-16 lazy-reveal" data-delay="100">
             <div class="max-w-3xl mx-auto px-6">
                 <div class="text-center mb-10">
@@ -389,6 +545,7 @@
                     <h5 class="text-xs font-black uppercase tracking-[0.2em] text-white">Navigation</h5>
                     <ul class="space-y-2.5 text-xs text-stone-400">
                         <li><a href="#catalog" class="hover:text-[#e0bd72] transition-colors">Pricing Catalog</a></li>
+                        <li><a href="#craftsmanship" class="hover:text-[#e0bd72] transition-colors">Craftsmanship Process</a></li>
                         <li><a href="gallery.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1">Art Gallery <i data-lucide="arrow-up-right" class="w-3 h-3 text-[#e0bd72]"></i></a></li>
                         <li><a href="tiktok.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1">BANTSE'S STUDIO<i data-lucide="play-circle" class="w-3.5 h-3.5 text-[#e0bd72]"></i></a></li>
                     </ul>
@@ -525,8 +682,17 @@
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT CONTROLLERS -->
+    <!-- Lucide Icon Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+
+    <!-- MAIN EXTERNAL JAVASCRIPT CONTROLLERS -->
     <script src="script.js"></script>
 </body>
 </html>
-
+```
