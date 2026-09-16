@@ -42,12 +42,15 @@ let order = {
 };
 
 function toggleMenu() {
-    document.getElementById('mobileMenu').classList.toggle('hidden');
+    document.getElementById('mobileMenu')?.classList.toggle('hidden');
 }
 
 function showCustomToast(msg) {
     const toast = document.getElementById('customToast');
-    document.getElementById('toastMsg').textContent = msg;
+    const toastMsg = document.getElementById('toastMsg');
+    if (!toast || !toastMsg) return;
+
+    toastMsg.textContent = msg;
     toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
     setTimeout(() => {
         toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
@@ -63,13 +66,15 @@ function openOrder(s) {
         delivery: 'collect' 
     };
     
-    document.getElementById('modalTitle').textContent = s + " Commission Setup";
+    const titleEl = document.getElementById('modalTitle');
+    if (titleEl) titleEl.textContent = s + " Commission Setup";
+    
     updateOrderUI();
-    document.getElementById('orderModal').classList.add('show');
+    document.getElementById('orderModal')?.classList.add('show');
 }
 
 function closeOrder() { 
-    document.getElementById('orderModal').classList.remove('show'); 
+    document.getElementById('orderModal')?.classList.remove('show'); 
 }
 
 function setStyle(s) { 
@@ -94,30 +99,35 @@ function setDelivery(d) {
 
 function updateOrderUI() {
     const sizeData = pricing[order.size];
-    if (!sizeData) return;
+    // Stop execution if page doesn't contain order UI elements
+    if (!sizeData || !document.getElementById('totalDisplay')) return;
 
     const isBW = order.style === 'bw';
-    document.getElementById('btnBW').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
-    document.getElementById('btnColor').className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${!isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+    const btnBW = document.getElementById('btnBW');
+    const btnColor = document.getElementById('btnColor');
+    if (btnBW) btnBW.className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+    if (btnColor) btnColor.className = `py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider ${!isBW ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950 shadow-[0_0_15px_rgba(212,175,106,0.2)]' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
 
-    document.getElementById('btnComplexity').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.isExtra ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
-    document.getElementById('badgeComplexity').textContent = order.isExtra ? "Multiple/Complex" : "Standard";
-    document.getElementById('badgeComplexity').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.isExtra ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
-
-    document.getElementById('btnTimelapse').className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.hasTimelapse ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
-    document.getElementById('badgeTimelapse').className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.hasTimelapse ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
-
-    const isCollect = order.delivery === 'collect';
-    document.getElementById('btnCollect').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
-    document.getElementById('btnShipping').className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${!isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
-
-    let base = 0;
-    if (isBW) {
-        base = order.isExtra ? sizeData.bwEx : sizeData.bw;
-    } else {
-        base = order.isExtra ? sizeData.colEx : sizeData.col;
+    const btnComplexity = document.getElementById('btnComplexity');
+    const badgeComplexity = document.getElementById('badgeComplexity');
+    if (btnComplexity) btnComplexity.className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.isExtra ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+    if (badgeComplexity) {
+        badgeComplexity.textContent = order.isExtra ? "Multiple/Complex" : "Standard";
+        badgeComplexity.className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.isExtra ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
     }
 
+    const btnTimelapse = document.getElementById('btnTimelapse');
+    const badgeTimelapse = document.getElementById('badgeTimelapse');
+    if (btnTimelapse) btnTimelapse.className = `py-3 px-4 rounded-xl font-bold border-2 text-left flex justify-between items-center transition-all ${order.hasTimelapse ? 'border-[#d4af6a] bg-stone-900 text-white' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+    if (badgeTimelapse) badgeTimelapse.className = `text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${order.hasTimelapse ? 'bg-[#d4af6a] text-stone-950' : 'bg-stone-800 text-stone-300'}`;
+
+    const isCollect = order.delivery === 'collect';
+    const btnCollect = document.getElementById('btnCollect');
+    const btnShipping = document.getElementById('btnShipping');
+    if (btnCollect) btnCollect.className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+    if (btnShipping) btnShipping.className = `py-3 rounded-xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${!isCollect ? 'border-[#d4af6a] bg-[#d4af6a] text-stone-950' : 'border-stone-800 bg-stone-900 text-stone-400'}`;
+
+    let base = isBW ? (order.isExtra ? sizeData.bwEx : sizeData.bw) : (order.isExtra ? sizeData.colEx : sizeData.col);
     const deliveryCost = order.delivery === 'shipping' ? 100 : 0;
     const timelapseCost = order.hasTimelapse ? 50 : 0;
 
@@ -125,26 +135,27 @@ function updateOrderUI() {
     document.getElementById('totalDisplay').textContent = "R" + finalTotal;
 
     const desc = `${order.size} | ${isBW ? 'B&W' : 'Color'} | ${order.isExtra ? 'Complex' : '1 Subject'} ${order.hasTimelapse ? '+ Video' : ''}`;
-    document.getElementById('invoiceDetails').textContent = desc;
+    const invoiceDetails = document.getElementById('invoiceDetails');
+    if (invoiceDetails) invoiceDetails.textContent = desc;
 }
 
 async function submitEmail() {
-    const n = document.getElementById('custName').value.trim();
-    const e = document.getElementById('custEmail').value.trim();
-    if(!n || !e) {
+    const custName = document.getElementById('custName')?.value.trim();
+    const custEmail = document.getElementById('custEmail')?.value.trim();
+    if(!custName || !custEmail) {
         showCustomToast("Please enter both your Name and Email Address.");
         return;
     }
     
-    const total = document.getElementById('totalDisplay').textContent;
+    const total = document.getElementById('totalDisplay')?.textContent || 'R0';
     const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
     const complexityLabel = order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject';
     const timelapseLabel = order.hasTimelapse ? 'Yes' : 'No';
     const deliveryLabel = order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)';
 
     const orderDetails = {
-        Customer: n,
-        Email: e,
+        Customer: custName,
+        Email: custEmail,
         Size: order.size,
         Style: styleLabel,
         Subjects: complexityLabel,
@@ -167,20 +178,20 @@ async function submitEmail() {
 }
 
 function submitWhatsApp() {
-    const n = document.getElementById('custName').value.trim();
-    if(!n) {
+    const custName = document.getElementById('custName')?.value.trim();
+    if(!custName) {
         showCustomToast("Please enter your Full Name.");
         return;
     }
     
-    const total = document.getElementById('totalDisplay').textContent;
+    const total = document.getElementById('totalDisplay')?.textContent || 'R0';
     const styleLabel = order.style === 'bw' ? 'B&W' : 'Color';
     const complexityLabel = order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject';
     const timelapseLabel = order.hasTimelapse ? 'Yes' : 'No';
     const deliveryLabel = order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)';
 
     const msg = `*NEW COMMISSION ORDER — Bantse's Pencil*%0A` +
-                `*Customer Name:* ${encodeURIComponent(n)}%0A` +
+                `*Customer Name:* ${encodeURIComponent(custName)}%0A` +
                 `*Size:* ${encodeURIComponent(order.size)}%0A` +
                 `*Style:* ${encodeURIComponent(styleLabel)}%0A` +
                 `*Subjects:* ${encodeURIComponent(complexityLabel)}%0A` +
@@ -217,7 +228,9 @@ function initLazyReveal() {
 }
 
 window.addEventListener('load', () => {
-    document.getElementById('year').textContent = new Date().getFullYear();
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -228,21 +241,25 @@ window.addEventListener('load', () => {
     // Initialize lazy transitions
     initLazyReveal();
 
+    // Live chat integration check
     const checkFB = setInterval(async () => {
         if (window.fb) {
             clearInterval(checkFB);
+            const chatBox = document.getElementById('chatBox');
+            if (!chatBox) return; // Exit if chatBox isn't present on this page
+
             const { auth, db, appId, onSnapshot, collection, query, signInAnonymously } = window.fb;
             await signInAnonymously(auth);
             
             onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'comments')), s => {
                 const chats = s.docs.map(d => d.data()).sort((a,b) => a.createdAt - b.createdAt);
-                document.getElementById('chatBox').innerHTML = chats.map(c => `
+                chatBox.innerHTML = chats.map(c => `
                     <div class="bg-stone-900 p-4 rounded-2xl border border-stone-800 shadow-sm self-start max-w-[85%]">
                         <p class="text-[9px] font-black text-[#d4af6a] uppercase tracking-widest mb-1">${c.author || 'Visitor'}</p>
                         <p class="text-xs font-bold text-stone-200 leading-relaxed">${c.text}</p>
                     </div>
                 `).join('');
-                document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+                chatBox.scrollTop = chatBox.scrollHeight;
             });
         }
     }, 100);
@@ -250,31 +267,38 @@ window.addEventListener('load', () => {
 
 async function postChat(e) {
     e.preventDefault();
-    const t = document.getElementById('chatMsg').value.trim();
+    const chatMsg = document.getElementById('chatMsg');
+    if(!chatMsg) return;
+    
+    const t = chatMsg.value.trim();
     if(!t) return;
+
     const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), { 
         text: t, 
         createdAt: serverTimestamp(), 
         author: localStorage.getItem('bantseName') || 'Visitor' 
     });
-    document.getElementById('chatMsg').value = '';
+    chatMsg.value = '';
 }
 
-const fileInput = document.getElementById('fileInput');
-if (fileInput) {
-    fileInput.addEventListener('change', function() {
-        if(this.files.length) {
-            const reader = new FileReader();
-            reader.readAsDataURL(this.files[0]);
-            reader.onload = async e => {
-                const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery_cloud'), { 
-                    url: e.target.result, 
-                    createdAt: serverTimestamp() 
-                });
-                showCustomToast("Portrait shared! Check gallery page.");
+// File input setup (for image uploads)
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if(this.files.length) {
+                const reader = new FileReader();
+                reader.readAsDataURL(this.files[0]);
+                reader.onload = async e => {
+                    const { db, appId, collection, addDoc, serverTimestamp } = window.fb;
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery_cloud'), { 
+                        url: e.target.result, 
+                        createdAt: serverTimestamp() 
+                    });
+                    showCustomToast("Portrait shared! Check gallery page.");
+                }
             }
-        }
-    });
-}
+        });
+    }
+});

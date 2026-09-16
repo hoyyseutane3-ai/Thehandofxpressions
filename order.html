@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9524748387567951" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Portrait Commission | Bantse's Pencil - TheHandOfXpressions</title>
+
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,400;1,600&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #c9a054; 
+            background-image: radial-gradient(circle at 50% 50%, #e0bd72 0%, #ba9143 100%);
+            color: #0f0f0f; 
+        }
+        .font-display { font-family: 'Cinzel', serif; }
+        .font-serif-italic { font-family: 'Playfair Display', serif; font-style: italic; }
+
+        .glass-dark-card {
+            background: rgba(13, 13, 13, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(224, 189, 114, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .paper-grain-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative antialiased">
+    <div class="paper-grain-overlay"></div>
+
+    <!-- DEDICATED HEADER -->
+    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[#0d0d0d]/90 border-b border-[#e0bd72]/30 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-3.5 group">
+                <div class="w-12 h-12 bg-[#faf8f5] rounded-full p-0.5 flex items-center justify-center border-2 border-[#e0bd72] shadow-[0_0_20px_rgba(224,189,114,0.3)] overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img src="Letter R for Business Logo_20260524_124758_0000.png" alt="Bantse's Pencil Logo" class="h-full w-full object-contain scale-110" />
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-base sm:text-xl font-display font-black tracking-wider text-white leading-tight group-hover:text-[#e0bd72] transition-colors">Bantse's Pencil</h1>
+                    <span class="text-[9px] text-[#e0bd72] font-bold uppercase tracking-[0.25em]">TheHandOfXpressions</span>
+                </div>
+            </a>
+
+            <nav class="flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-stone-200">
+                <a href="index.html" class="hover:text-[#e0bd72] transition-colors flex items-center gap-1.5"><i data-lucide="arrow-left" class="w-4 h-4 text-[#e0bd72]"></i> Back Home</a>
+                <a href="gallery.html" class="hidden sm:flex hover:text-[#e0bd72] transition-colors items-center gap-1">Gallery <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-[#e0bd72]"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN DEDICATED ORDER SUITE -->
+    <main class="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
+        <div class="text-center mb-10">
+            <span class="px-4 py-1.5 rounded-full bg-[#0d0d0d] text-[#e0bd72] border border-[#e0bd72]/40 text-[10px] font-black uppercase tracking-[0.3em] inline-block mb-3 shadow-xl">
+                Commission Studio
+            </span>
+            <h2 class="text-4xl sm:text-5xl font-display font-black text-[#0d0d0d] uppercase tracking-wide">Configure Your Artwork</h2>
+            <p class="text-stone-900 font-bold text-xs max-w-md mx-auto mt-2 uppercase tracking-wider">Select canvas specifications, custom extras, and submission preferences</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT COLUMN: FULL CONFIGURATOR FORM -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- STEP 1: CANVAS SIZE SELECTOR -->
+                <div class="glass-dark-card p-6 rounded-3xl border border-[#e0bd72]/30">
+                    <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                        <i data-lucide="maximize" class="w-4 h-4"></i> 1. Select Canvas Size
+                    </span>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button type="button" onclick="selectSize('A4')" id="size-A4" class="size-btn p-4 rounded-2xl border-2 border-stone-800 text-left transition-all">
+                            <span class="text-xs font-black uppercase tracking-wider block text-white">A4 Canvas</span>
+                            <span class="text-[9px] text-stone-400 block mt-1">From R480</span>
+                        </button>
+                        <button type="button" onclick="selectSize('A3')" id="size-A3" class="size-btn p-4 rounded-2xl border-2 border-stone-800 text-left transition-all">
+                            <span class="text-xs font-black uppercase tracking-wider block text-white">A3 Canvas</span>
+                            <span class="text-[9px] text-stone-400 block mt-1">From R680</span>
+                        </button>
+                        <button type="button" onclick="selectSize('A2')" id="size-A2" class="size-btn p-4 rounded-2xl border-2 border-stone-800 text-left transition-all">
+                            <span class="text-xs font-black uppercase tracking-wider block text-white">A2 Canvas</span>
+                            <span class="text-[9px] text-stone-400 block mt-1">From R1400</span>
+                        </button>
+                        <button type="button" onclick="selectSize('A1')" id="size-A1" class="size-btn p-4 rounded-2xl border-2 border-stone-800 text-left transition-all">
+                            <span class="text-xs font-black uppercase tracking-wider block text-white">A1 Canvas</span>
+                            <span class="text-[9px] text-stone-400 block mt-1">From R2700</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: ART STYLE SELECTOR -->
+                <div class="glass-dark-card p-6 rounded-3xl border border-[#e0bd72]/30">
+                    <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                        <i data-lucide="palette" class="w-4 h-4"></i> 2. Select Art Medium / Style
+                    </span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" id="styleBW" onclick="setStyle('bw')" class="p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-3 text-xs uppercase font-black tracking-wider text-white">
+                            <i data-lucide="moon" class="w-4 h-4 text-[#e0bd72]"></i> Black & White Charcoal
+                        </button>
+                        <button type="button" id="styleColor" onclick="setStyle('color')" class="p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-3 text-xs uppercase font-black tracking-wider text-white">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-[#e0bd72]"></i> Full Color Realism
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: SUBJECT COMPLEXITY & EXTRAS -->
+                <div class="glass-dark-card p-6 rounded-3xl border border-[#e0bd72]/30">
+                    <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> 3. Subject & Extra Options
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button type="button" id="btnComplexity" onclick="toggleComplexity()" class="p-4 rounded-2xl border-2 text-left flex justify-between items-center transition-all bg-stone-900/60 border-stone-800">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-white block">2+ People / Detailed Background</span>
+                                <span class="text-[9px] text-stone-400 block mt-0.5">Adjusts pricing for higher detail</span>
+                            </div>
+                            <span id="badgeComplexity" class="text-[9px] font-black px-2.5 py-1 rounded-full uppercase bg-stone-800 text-stone-300">Standard</span>
+                        </button>
+
+                        <button type="button" id="btnTimelapse" onclick="toggleTimelapse()" class="p-4 rounded-2xl border-2 text-left flex justify-between items-center transition-all bg-stone-900/60 border-stone-800">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-white block">Process Timelapse Video</span>
+                                <span class="text-[9px] text-stone-400 block mt-0.5">High Quality MP4 Recording</span>
+                            </div>
+                            <span id="badgeTimelapse" class="text-[9px] font-black px-2.5 py-1 rounded-full uppercase bg-stone-800 text-stone-300">+ R50</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: DELIVERY & FULFILMENT -->
+                <div class="glass-dark-card p-6 rounded-3xl border border-[#e0bd72]/30">
+                    <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                        <i data-lucide="truck" class="w-4 h-4"></i> 4. Fulfilment & Delivery Method
+                    </span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" id="btnCollect" onclick="setDelivery('collect')" class="p-4 rounded-2xl font-bold border-2 transition-all text-xs uppercase tracking-wider text-stone-300">
+                            Pretoria Studio Pickup
+                        </button>
+                        <button type="button" id="btnShipping" onclick="setDelivery('shipping')" class="p-4 rounded-2xl font-bold border-2 transition-all text-xs uppercase tracking-wider text-stone-300">
+                            PostNet Courier (+R100)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 5: CLIENT DETAILS & REFERENCE PHOTO -->
+                <div class="glass-dark-card p-6 rounded-3xl border border-[#e0bd72]/30">
+                    <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-4 h-4"></i> 5. Client Information & Reference
+                    </span>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="relative">
+                                <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#e0bd72]"></i>
+                                <input type="text" id="custName" placeholder="Your Full Name" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3.5 rounded-2xl outline-none font-bold text-xs text-white focus:border-[#e0bd72] transition-colors">
+                            </div>
+                            <div class="relative">
+                                <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#e0bd72]"></i>
+                                <input type="email" id="custEmail" placeholder="Email Address" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3.5 rounded-2xl outline-none font-bold text-xs text-white focus:border-[#e0bd72] transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <i data-lucide="image" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#e0bd72]"></i>
+                            <input type="file" id="custImage" accept="image/*" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3 rounded-2xl outline-none font-bold text-xs text-stone-400 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#e0bd72] file:text-[#0d0d0d] hover:file:bg-[#c9a054] cursor-pointer">
+                        </div>
+
+                        <div class="relative">
+                            <i data-lucide="message-square-plus" class="absolute left-4 top-4 w-4 h-4 text-[#e0bd72]"></i>
+                            <textarea id="custNotes" rows="3" placeholder="Special Requests or Notes (Optional)" class="w-full bg-stone-900 border border-stone-800 pl-11 pr-4 py-3.5 rounded-2xl outline-none font-bold text-xs text-white focus:border-[#e0bd72] transition-colors resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: STICKY LIVE INVOICE SUMMARY -->
+            <div class="lg:col-span-5 lg:sticky lg:top-28">
+                <div class="bg-[#0d0d0d] border border-[#e0bd72]/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+                    
+                    <div class="border-b border-stone-800 pb-4">
+                        <span class="text-[10px] font-black text-[#e0bd72] uppercase tracking-[0.25em] block">Summary</span>
+                        <h3 class="text-2xl font-display font-black text-white uppercase mt-1">Commission Quote</h3>
+                    </div>
+
+                    <!-- Breakdown list -->
+                    <div class="space-y-3 text-xs font-semibold text-stone-300">
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">Selected Canvas:</span>
+                            <span id="summarySize" class="font-bold text-white uppercase">A2 Portrait</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">Art Style:</span>
+                            <span id="summaryStyle" class="font-bold text-white uppercase">Black & White</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">Subject Complexity:</span>
+                            <span id="summaryComplexity" class="font-bold text-white uppercase">Standard</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">Timelapse Video:</span>
+                            <span id="summaryTimelapse" class="font-bold text-white uppercase">No</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">Fulfilment:</span>
+                            <span id="summaryDelivery" class="font-bold text-white uppercase">Pretoria Pickup</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Price Box -->
+                    <div class="bg-black border border-stone-800 p-5 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <span class="text-[9px] font-black text-[#e0bd72] uppercase tracking-widest block">Total Estimated Quote</span>
+                            <span class="text-[10px] text-stone-400 font-bold block mt-0.5">Includes frame & preparation</span>
+                        </div>
+                        <span id="totalDisplay" class="text-3xl font-display font-black text-white">R0</span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-3 pt-2">
+                        <button type="button" onclick="submitWhatsApp()" class="w-full bg-gradient-to-r from-[#ba9143] to-[#e0bd72] text-[#0d0d0d] py-4 rounded-2xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
+                            <i data-lucide="message-square" class="w-4 h-4"></i> Submit via WhatsApp
+                        </button>
+                        <button type="button" onclick="submitEmail()" class="w-full bg-transparent border border-[#e0bd72]/40 text-[#e0bd72] py-4 rounded-2xl font-black uppercase text-xs tracking-wider flex justify-center items-center gap-2 hover:bg-[#e0bd72]/10 active:scale-95 transition-all">
+                            <i data-lucide="mail" class="w-4 h-4"></i> Submit via Email
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- DEDICATED PAGE LOGIC -->
+<script>
+    // SheetDB API Endpoint
+    const SHEET_API_URL = 'https://sheetdb.io/api/v1/YOUR_SHEETDB_API_ID';
+
+    // Default / Fallback Pricing structure
+    let pricing = {
+        A4: { bw: 480, col: 580, bwEx: 540, colEx: 680 },
+        A3: { bw: 680, col: 780, bwEx: 740, colEx: 880 },
+        A2: { bw: 1400, col: 1700, bwEx: 1800, colEx: 2000 },
+        A1: { bw: 2700, col: 2900, bwEx: 3100, colEx: 3400 }
+    };
+
+    // State initialized to null so nothing is pre-selected
+    let order = { 
+        size: null, 
+        style: null, 
+        isExtra: false, 
+        hasTimelapse: false, 
+        delivery: null 
+    };
+
+    // Fetch live prices from Google Sheet backend
+    async function fetchPricesFromSheet() {
+        try {
+            const response = await fetch(SHEET_API_URL);
+            const data = await response.json();
+
+            data.forEach(row => {
+                const size = row.size ? row.size.toUpperCase() : null;
+                if (size && pricing[size]) {
+                    pricing[size] = {
+                        bw: Number(row.bw) || pricing[size].bw,
+                        col: Number(row.col) || pricing[size].col,
+                        bwEx: Number(row.bwEx) || pricing[size].bwEx,
+                        colEx: Number(row.colEx) || pricing[size].colEx
+                    };
+                }
+            });
+            updateOrderUI();
+        } catch (error) {
+            console.warn("Could not fetch Google Sheet data, using local pricing fallback.", error);
+        }
+    }
+
+    function selectSize(s) {
+        order.size = s;
+        updateOrderUI();
+    }
+
+    function setStyle(s) { 
+        order.style = s; 
+        updateOrderUI(); 
+    }
+
+    function toggleComplexity() { 
+        order.isExtra = !order.isExtra; 
+        updateOrderUI(); 
+    }
+
+    function toggleTimelapse() { 
+        order.hasTimelapse = !order.hasTimelapse; 
+        updateOrderUI(); 
+    }
+
+    function setDelivery(d) { 
+        order.delivery = d; 
+        updateOrderUI(); 
+    }
+
+    function updateOrderUI() {
+        // 1. Canvas Size Selector Buttons
+        ['A4', 'A3', 'A2', 'A1'].forEach(sz => {
+            const btn = document.getElementById(`size-${sz}`);
+            if (btn) {
+                if (order.size === sz) {
+                    btn.className = "size-btn p-4 rounded-2xl border-2 transition-all border-[#e0bd72] bg-[#e0bd72]/10 text-left";
+                } else {
+                    btn.className = "size-btn p-4 rounded-2xl border-2 border-stone-800 text-left transition-all bg-transparent hover:border-stone-700";
+                }
+            }
+        });
+
+        // 2. Medium / Style Buttons
+        const btnBW = document.getElementById('styleBW');
+        const btnColor = document.getElementById('styleColor');
+        if (btnBW) {
+            btnBW.className = `p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-3 text-xs uppercase font-black tracking-wider ${order.style === 'bw' ? 'border-[#e0bd72] bg-[#e0bd72]/10 text-white' : 'border-stone-800 bg-transparent text-stone-400 hover:border-stone-700'}`;
+        }
+        if (btnColor) {
+            btnColor.className = `p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-3 text-xs uppercase font-black tracking-wider ${order.style === 'color' ? 'border-[#e0bd72] bg-[#e0bd72]/10 text-white' : 'border-stone-800 bg-transparent text-stone-400 hover:border-stone-700'}`;
+        }
+
+        // 3. Complexity Option & Badge
+        const btnCpx = document.getElementById('btnComplexity');
+        const badgeCpx = document.getElementById('badgeComplexity');
+        if (btnCpx) btnCpx.className = `p-4 rounded-2xl border-2 text-left flex justify-between items-center transition-all ${order.isExtra ? 'border-[#e0bd72] bg-stone-900/90' : 'border-stone-800 bg-stone-900/60'}`;
+        if (badgeCpx) {
+            badgeCpx.textContent = order.isExtra ? "Multiple/Complex" : "Standard";
+            badgeCpx.className = `text-[9px] font-black px-2.5 py-1 rounded-full uppercase ${order.isExtra ? 'bg-[#e0bd72] text-black' : 'bg-stone-800 text-stone-300'}`;
+        }
+
+        // Timelapse Option & Badge
+        const btnTime = document.getElementById('btnTimelapse');
+        const badgeTime = document.getElementById('badgeTimelapse');
+        if (btnTime) btnTime.className = `p-4 rounded-2xl border-2 text-left flex justify-between items-center transition-all ${order.hasTimelapse ? 'border-[#e0bd72] bg-stone-900/90' : 'border-stone-800 bg-stone-900/60'}`;
+        if (badgeTime) {
+            badgeTime.textContent = order.hasTimelapse ? "Added (+R50)" : "+ R50";
+            badgeTime.className = `text-[9px] font-black px-2.5 py-1 rounded-full uppercase ${order.hasTimelapse ? 'bg-[#e0bd72] text-black' : 'bg-stone-800 text-stone-300'}`;
+        }
+
+        // 4. Delivery Method Buttons
+        const btnCol = document.getElementById('btnCollect');
+        const btnShip = document.getElementById('btnShipping');
+        if (btnCol) btnCol.className = `p-4 rounded-2xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${order.delivery === 'collect' ? 'border-[#e0bd72] bg-[#e0bd72]/10 text-white' : 'border-stone-800 bg-transparent text-stone-400 hover:border-stone-700'}`;
+        if (btnShip) btnShip.className = `p-4 rounded-2xl font-bold border-2 transition-all text-xs uppercase tracking-wider ${order.delivery === 'shipping' ? 'border-[#e0bd72] bg-[#e0bd72]/10 text-white' : 'border-stone-800 bg-transparent text-stone-400 hover:border-stone-700'}`;
+
+        // Calculate Totals conditionally
+        let finalTotal = 0;
+        let canCalculate = false;
+
+        if (order.size && order.style && order.delivery) {
+            const sizeData = pricing[order.size];
+            if (sizeData) {
+                const isBW = order.style === 'bw';
+                let base = isBW ? (order.isExtra ? sizeData.bwEx : sizeData.bw) : (order.isExtra ? sizeData.colEx : sizeData.col);
+                const deliveryCost = order.delivery === 'shipping' ? 100 : 0;
+                const timelapseCost = order.hasTimelapse ? 50 : 0;
+                finalTotal = base + deliveryCost + timelapseCost;
+                canCalculate = true;
+            }
+        }
+
+        // Update Summary Display
+        if (document.getElementById('summarySize')) document.getElementById('summarySize').textContent = order.size ? `${order.size} Canvas` : 'Not Selected';
+        if (document.getElementById('summaryStyle')) document.getElementById('summaryStyle').textContent = order.style ? (order.style === 'bw' ? 'B&W Charcoal' : 'Color Realism') : 'Not Selected';
+        if (document.getElementById('summaryComplexity')) document.getElementById('summaryComplexity').textContent = order.isExtra ? 'Complex / Multi-Person' : 'Standard Subject';
+        if (document.getElementById('summaryTimelapse')) document.getElementById('summaryTimelapse').textContent = order.hasTimelapse ? 'Yes (+R50)' : 'No';
+        if (document.getElementById('summaryDelivery')) document.getElementById('summaryDelivery').textContent = order.delivery ? (order.delivery === 'shipping' ? 'PostNet Courier (+R100)' : 'Pretoria Pickup') : 'Not Selected';
+        if (document.getElementById('totalDisplay')) document.getElementById('totalDisplay').textContent = canCalculate ? "R" + finalTotal : "R0";
+    }
+
+    function showCustomToast(msg) {
+        const toast = document.getElementById('customToast');
+        if (toast) {
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+            }, 3500);
+        } else {
+            alert(msg);
+        }
+    }
+
+    function validateSelections() {
+        if (!order.size) {
+            showCustomToast("Please select a canvas size (A4, A3, A2, or A1).");
+            return false;
+        }
+        if (!order.style) {
+            showCustomToast("Please select an art style (Charcoal or Full Color).");
+            return false;
+        }
+        if (!order.delivery) {
+            showCustomToast("Please select a delivery method.");
+            return false;
+        }
+        return true;
+    }
+
+    async function submitEmail() {
+        if (!validateSelections()) return;
+
+        const n = document.getElementById('custName')?.value.trim();
+        const e = document.getElementById('custEmail')?.value.trim();
+        if (!n || !e) {
+            showCustomToast("Please enter both your Name and Email Address.");
+            return;
+        }
+
+        const total = document.getElementById('totalDisplay').textContent;
+        const notes = document.getElementById('custNotes')?.value.trim() || '';
+
+        const orderDetails = {
+            Customer: n,
+            Email: e,
+            Size: order.size,
+            Style: order.style === 'bw' ? 'B&W Charcoal' : 'Color Realism',
+            Subjects: order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject',
+            TimelapseVideo: order.hasTimelapse ? 'Yes' : 'No',
+            Delivery: order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)',
+            Notes: notes,
+            GrandTotal: total
+        };
+
+        try {
+            await fetch("https://formspree.io/f/myklqqld", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(orderDetails) 
+            });
+            showCustomToast("E-mail order sent! Thank you.");
+        } catch (err) {
+            showCustomToast("Form submission error. Please use WhatsApp fallback.");
+        }
+    }
+
+    function submitWhatsApp() {
+        if (!validateSelections()) return;
+
+        const n = document.getElementById('custName')?.value.trim();
+        if (!n) {
+            showCustomToast("Please enter your Full Name.");
+            return;
+        }
+
+        const total = document.getElementById('totalDisplay').textContent;
+        const notes = document.getElementById('custNotes')?.value.trim() || '';
+        const styleLabel = order.style === 'bw' ? 'B&W Charcoal' : 'Color Realism';
+        const complexityLabel = order.isExtra ? 'Multiple Subjects / Complex Artwork' : 'Single Subject';
+        const timelapseLabel = order.hasTimelapse ? 'Yes' : 'No';
+        const deliveryLabel = order.delivery === 'collect' ? 'Pretoria Pickup' : 'PostNet Shipping (+R100)';
+
+        let msg = `*NEW COMMISSION ORDER — Bantse's Pencil*%0A` +
+                    `*Customer Name:* ${encodeURIComponent(n)}%0A` +
+                    `*Size:* ${encodeURIComponent(order.size)}%0A` +
+                    `*Style:* ${encodeURIComponent(styleLabel)}%0A` +
+                    `*Subjects:* ${encodeURIComponent(complexityLabel)}%0A` +
+                    `*Timelapse Video:* ${encodeURIComponent(timelapseLabel)}%0A` +
+                    `*Delivery:* ${encodeURIComponent(deliveryLabel)}%0A` +
+                    `*Grand Total:* ${encodeURIComponent(total)}`;
+
+        if (notes) {
+            msg += `%0A*Notes:* ${encodeURIComponent(notes)}`;
+        }
+
+        window.open(`https://wa.me/27693944083?text=${msg}`, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+        fetchPricesFromSheet();
+        updateOrderUI();
+    });
+</script>
+
+</body>
+</html>
