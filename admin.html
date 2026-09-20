@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5444482276401891"
+     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9524748387567951"
+     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheHandOfXpressions | Bantse's Pencil - Handcrafted Realism Art</title>
+
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Firebase Cloud System -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bantse-pencil-art';
+
+        window.fb = { auth, db, appId, collection, addDoc, onSnapshot, query, serverTimestamp, signInAnonymously };
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,400;1,600&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #c9a054; 
+            background-image: radial-gradient(circle at 50% 50%, #e0bd72 0%, #ba9143 100%);
+            color: #0f0f0f; 
+        }
+        .font-display { font-family: 'Cinzel', serif; }
+        .font-serif-italic { font-family: 'Playfair Display', serif; font-style: italic; }
+        
+        /* Premium Obsidian & Gold Framing */
+        .frame-style { 
+            border: 10px solid #0d0d0d; 
+            outline: 2px solid #e0bd72;
+            padding: 8px; 
+            background: #141414; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7), 0 0 35px rgba(0,0,0,0.4); 
+            position: relative;
+        }
+
+        .frame-style::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(224, 189, 114, 0.15) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        /* Swapped Frame Style for Gallery Marquee */
+        .gold-frame {
+            width: 230px;
+            aspect-ratio: 3/4;
+            flex-shrink: 0;
+            border: 10px solid #0d0d0d;
+            outline: 2px solid #e0bd72;
+            padding: 8px;
+            background: #141414;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .gold-frame:hover {
+            transform: scale(1.08) translateY(-8px);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.8), 0 0 25px rgba(224, 189, 114, 0.4);
+            outline-color: #ffffff;
+        }
+        .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Hide Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes lazyFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(0.5deg); }
+        }
+        .animate-lazy {
+            animation: lazyFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(224, 189, 114, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(224, 189, 114, 0.5); }
+        }
+        .animate-gold-glow {
+            animation: goldGlow 3s ease-in-out infinite;
+        }
+
+        /* LAZY LAUNCH SCROLL-UP SYSTEM */
+        .lazy-reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .lazy-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Endless marquee sliding track styling */
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            gap: 2rem;
+            animation: scrollLeft 28s linear infinite;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Frosted Glass Dark Card Accent */
+        .glass-dark-card {
+            background: rgba(13, 13, 13, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(224, 189, 114, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+        .glass-dark-card:hover {
+            border-color: rgba(224, 189, 114, 0.5);
+        }
+
+        /* Fine Paper Grain Texture Simulation Overlay */
+        .paper-grain-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Shimmer Banner Line */
+        .gold-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(224, 189, 114, 0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+
+<body>
+  <div class="max-w-xl mx-auto p-6 bg-stone-900 text-white rounded-2xl shadow-xl border border-stone-800 my-10">
+  <h2 class="text-2xl font-bold mb-4 text-[#e0bd72]">Create Artist Post</h2>
+  
+  <form id="adminPostForm" class="space-y-4">
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1">Title / Artwork Name</label>
+      <input type="text" id="postHeader" required placeholder="e.g. Character Sketch #4" class="w-full bg-stone-800 border border-stone-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#e0bd72]">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1">Caption / Description</label>
+      <textarea id="postSubtext" rows="4" required placeholder="Pencil & ink line-art process..." class="w-full bg-stone-800 border border-stone-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-[#e0bd72]"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-1">Select Artwork Image / Video</label>
+      <input type="file" id="mediaFileInput" accept="image/*,video/*" class="w-full bg-stone-800 border border-stone-700 rounded-lg p-2 text-sm text-stone-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#e0bd72] file:text-black hover:file:bg-[#d0ad62] cursor-pointer">
+    </div>
+
+    <button type="submit" id="submitBtn" class="w-full py-3 bg-[#e0bd72] text-black font-bold rounded-xl hover:bg-[#d0ad62] transition-all shadow-lg mt-2">
+      Publish Post 🚀
+    </button>
+  </form>
+</div>
+
+<script>
+  const POSTS_API_URL = "https://script.google.com/macros/s/AKfycbyD_aGriWymMMGLp5rN02_ptT8rX58whjWlqfZxp2o0_hkpdh3KCl-v2tXlvv2QQ9I0Mg/exec";
+const CLOUDINARY_CLOUD_NAME = "depkj7qng";
+const CLOUDINARY_PRESET = "picture-upload";
+
+
+  document.getElementById('adminPostForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const fileInput = document.getElementById('mediaFileInput');
+    
+    btn.disabled = true;
+    let uploadedMediaUrl = "";
+    let mediaType = "none";
+
+    try {
+      // 1. If a file was picked, upload it to Cloudinary first
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+        
+        btn.innerText = "Uploading Media...";
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_PRESET);
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadData.secure_url) throw new Error("Image upload failed");
+        
+        uploadedMediaUrl = uploadData.secure_url;
+      }
+
+      // 2. Send post data (with the new uploaded media link) to Google Sheets
+      btn.innerText = "Saving Post...";
+
+      const payload = {
+        action: "createPost",
+        header: document.getElementById('postHeader').value,
+        subtext: document.getElementById('postSubtext').value,
+        mediaType: mediaType,
+        mediaUrl: uploadedMediaUrl
+      };
+
+      await fetch(POSTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      alert('Post published successfully!');
+      document.getElementById('adminPostForm').reset();
+
+    } catch (err) {
+      alert('Error publishing post: ' + err.message);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Publish Post 🚀";
+    }
+  });
+</script>
+
+</body>
+
+</html>
