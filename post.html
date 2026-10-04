@@ -2,8 +2,6 @@
 <html lang="en">
 
 <head>
-    <meta name="google-site-verification" content="bRJh5uRevyYDfD0M8e6LDWY39dx2KUwnAdi67Afeqp0" />
-
     <!-- Google AdSense Tag (Single Primary Account) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5444482276401891"
      crossorigin="anonymous"></script>
@@ -17,19 +15,36 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <!-- Firebase Credentials Configuration -->
+    <script>
+        window.__firebase_config = JSON.stringify({
+            apiKey: "AIzaSyAI1TE4eYQKPN_y_-g2vHj6vfjrVM8uZSg",
+            authDomain: "thehandofxpressions.firebaseapp.com",
+            databaseURL: "https://thehandofxpressions-default-rtdb.firebaseio.com",
+            projectId: "thehandofxpressions",
+            storageBucket: "thehandofxpressions.firebasestorage.app",
+            messagingSenderId: "1041768884392",
+            appId: "1:1041768884392:web:433494a71025fb0e2bba9d",
+            measurementId: "G-QRQG50L5JS"
+        });
+        window.__app_id = 'thehandofxpressions';
+    </script>
+
     <!-- Firebase Cloud System -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
+        const firebaseConfig = JSON.parse(window.__firebase_config);
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bantse-pencil-art';
+        const appId = window.__app_id || 'thehandofxpressions';
 
-        window.fb = { auth, db, appId, collection, addDoc, onSnapshot, query, serverTimestamp, signInAnonymously };
+        window.fb = { app, analytics, auth, db, appId, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, signInAnonymously };
     </script>
     
     <style>
@@ -312,10 +327,8 @@
         </div>
     </footer>
 
-    <!-- SCRIPT FOR BACKEND FETCHING & HYDRATION -->
+    <!-- SCRIPT FOR FIRESTORE BACKEND FETCHING & HYDRATION -->
     <script>
-        const POSTS_API_URL = "https://script.google.com/macros/s/AKfycbzUGlHGNoIO3e9nV9oDBu0qPXgqYwMJA7C8N_z0alrbSVvn7JRl9rNqHVcRAI17BDrm-w/exec";
-
         function escapeHTML(str) {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, match => ({
@@ -326,10 +339,27 @@
         async function fetchStudioPosts() {
             const container = document.getElementById('dynamicLiveFeed');
             try {
-                const res = await fetch(POSTS_API_URL);
-                const posts = await res.json();
+                if (!window.fb || !window.fb.db) {
+                    console.log("Waiting for Firebase initialization...");
+                    return;
+                }
 
-                if (!posts || !posts.length) return;
+                const { db, collection, query, orderBy, getDocs } = window.fb;
+
+                // Query the 'posts' collection sorted by 'createdAt' descending
+                const postsRef = collection(db, "posts");
+                const q = query(postsRef, orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                const posts = [];
+                querySnapshot.forEach((doc) => {
+                    posts.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (!posts || !posts.length) {
+                    container.innerHTML = '';
+                    return;
+                }
 
                 container.innerHTML = `<h3 class="font-display text-xl font-black text-[#0d0d0d] uppercase tracking-wider text-center my-4">Latest Studio Announcements</h3>` + 
                 posts.map(post => {
@@ -355,6 +385,7 @@
                 }).join('');
 
             } catch (err) {
+                console.error("Firestore Error:", err);
                 console.log("No dynamic posts loaded; static articles active.");
             }
         }
@@ -373,7 +404,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchStudioPosts();
+            setTimeout(fetchStudioPosts, 300);
             if (window.lucide) window.lucide.createIcons();
         });
     </script>
