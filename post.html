@@ -35,7 +35,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, doc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(window.__firebase_config);
         const app = initializeApp(firebaseConfig);
@@ -44,7 +44,7 @@
         const db = getFirestore(app);
         const appId = window.__app_id || 'thehandofxpressions';
 
-        window.fb = { app, analytics, auth, db, appId, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, signInAnonymously };
+        window.fb = { app, analytics, auth, db, appId, collection, addDoc, getDocs, onSnapshot, query, orderBy, limit, doc, updateDoc, increment, serverTimestamp, signInAnonymously };
     </script>
     
     <style>
@@ -137,15 +137,26 @@
 
     <!-- STUDIO POSTS & ARTICLES JOURNAL SECTION -->
     <main class="py-16 max-w-4xl mx-auto px-6 flex-grow w-full">
-        <div class="text-center mb-12">
+        <div class="text-center mb-10">
             <span class="px-4 py-1.5 rounded-full bg-[#0d0d0d] text-[#e0bd72] border border-[#e0bd72]/40 text-[10px] font-black uppercase tracking-[0.3em] inline-block mb-3 shadow-xl">Realism Art Journal</span>
-            <h2 class="font-display text-3xl sm:text-5xl font-black text-[#0d0d0d] tracking-wide uppercase">Studio Articles & Feed</h2>
+            
+            <!-- LIVE STUDIO STATUS BADGE -->
+            <div id="studioStatusBadge" class="hidden my-2">
+                <span class="inline-flex items-center gap-2 bg-[#0d0d0d] border border-[#e0bd72]/50 text-[#e0bd72] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                    <!-- Dynamic Status Text Populated JS -->
+                </span>
+            </div>
+
+            <h2 class="font-display text-3xl sm:text-5xl font-black text-[#0d0d0d] tracking-wide uppercase mt-2">Studio Articles & Feed</h2>
             <p class="text-xs sm:text-sm font-medium text-stone-900 mt-2 max-w-xl mx-auto">Explore handcrafting guides, fine art preservation tips, and real-time updates directly from our Pretoria studio.</p>
             
             <button onclick="refreshFeed(this)" class="mt-6 inline-flex items-center gap-2 bg-[#0d0d0d] border border-[#e0bd72]/40 hover:border-[#e0bd72] text-[#e0bd72] px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xl active:scale-95">
                 <span>🔄</span> <span id="refreshBtnText">Refresh Live Feed</span>
             </button>
         </div>
+
+        <!-- DYNAMIC LIVE COMMUNITY POLL CONTAINER -->
+        <div id="activePollContainer" class="mb-12"></div>
 
         <!-- Dynamic Live Updates Container (Populated via JS) -->
         <div id="dynamicLiveFeed" class="space-y-8 mb-10"></div>
@@ -257,6 +268,47 @@
             </article>
 
         </div>
+        <!-- Google Auth & Fan Rewards Section -->
+<section class="max-w-4xl mx-auto my-8 p-6 bg-stone-900 text-white rounded-2xl shadow-xl border border-[#e0bd72]/30">
+  
+  <!-- User Profile / Login Header -->
+  <div id="authContainer" class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-stone-800">
+    <div>
+      <h3 class="text-xl font-bold text-[#e0bd72]">Bantse's Studio Fan Club</h3>
+      <p class="text-xs text-stone-400">Log in daily to earn points and claim top spot on the monthly leaderboard!</p>
+    </div>
+    
+    <!-- Login Button (Visible when logged out) -->
+    <button id="loginBtn" onclick="signInWithGoogle()" class="flex items-center gap-2 bg-white text-stone-900 px-5 py-2.5 rounded-full font-bold text-sm shadow-md hover:bg-stone-200 transition">
+      <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      Sign in with Google
+    </button>
+
+    <!-- User Info Card (Visible when logged in) -->
+    <div id="userInfo" class="hidden flex items-center gap-3">
+      <img id="userPhoto" src="" class="w-10 h-10 rounded-full border-2 border-[#e0bd72]" />
+      <div>
+        <h4 id="userName" class="font-bold text-sm"></h4>
+        <span class="text-xs text-[#e0bd72] font-semibold"><span id="userPoints">0</span> Points • <span id="userVisits">0</span> Visits</span>
+      </div>
+      <button onclick="logoutGoogle()" class="ml-4 text-xs text-stone-400 hover:text-red-400 underline">Logout</button>
+    </div>
+  </div>
+
+  <!-- Monthly Leaderboard -->
+  <div class="mt-6">
+    <div class="flex justify-between items-center mb-4">
+      <h4 class="font-bold text-lg text-stone-200">🏆 Top Fans This Month</h4>
+      <span class="text-xs bg-[#e0bd72]/20 text-[#e0bd72] px-3 py-1 rounded-full font-bold" id="currentMonthLabel">October Leaderboard</span>
+    </div>
+
+    <div id="leaderboardList" class="space-y-3">
+      <!-- Leaderboard items inject here via JavaScript -->
+      <p class="text-stone-500 text-xs text-center py-4">Loading top visitors...</p>
+    </div>
+  </div>
+</section>
+
     </main>
 
     <!-- PREMIUM FOOTER WITH MANDATORY COMPLIANCE LINKS -->
@@ -328,85 +380,478 @@
     </footer>
 
     <!-- SCRIPT FOR FIRESTORE BACKEND FETCHING & HYDRATION -->
-    <script>
-        function escapeHTML(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, match => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            }[match]));
+<script>
+    // -----------------------------------------------------------------
+    // UTILITY: ESCAPE HTML TO PREVENT XSS INJECTIONS
+    // -----------------------------------------------------------------
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, match => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[match]));
+    }
+
+    // Helper: Get YYYY-MM for monthly leaderboard partitioning
+    function getMonthKey() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // Helper: Display Month Name (e.g., "October Leaderboard")
+    function setMonthLabel() {
+        const label = document.getElementById('currentMonthLabel');
+        if (label) {
+            const monthName = new Date().toLocaleString('default', { month: 'long' });
+            label.innerText = `${monthName} Leaderboard`;
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // 1. LISTEN TO REAL-TIME STUDIO STATUS BADGE
+    // -----------------------------------------------------------------
+    function listenToStudioStatus() {
+        if (!window.fb || !window.fb.db) {
+            setTimeout(listenToStudioStatus, 300);
+            return;
         }
 
-        async function fetchStudioPosts() {
-            const container = document.getElementById('dynamicLiveFeed');
-            try {
-                if (!window.fb || !window.fb.db) {
-                    console.log("Waiting for Firebase initialization...");
-                    return;
-                }
+        const { db, doc, onSnapshot } = window.fb;
+        onSnapshot(doc(db, "studio", "status"), (docSnap) => {
+            const container = document.getElementById('studioStatusBadge');
+            if (!container) return;
 
-                const { db, collection, query, orderBy, getDocs } = window.fb;
-
-                // Query the 'posts' collection sorted by 'createdAt' descending
-                const postsRef = collection(db, "posts");
-                const q = query(postsRef, orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-
-                const posts = [];
-                querySnapshot.forEach((doc) => {
-                    posts.push({ id: doc.id, ...doc.data() });
-                });
-
-                if (!posts || !posts.length) {
-                    container.innerHTML = '';
-                    return;
-                }
-
-                container.innerHTML = `<h3 class="font-display text-xl font-black text-[#0d0d0d] uppercase tracking-wider text-center my-4">Latest Studio Announcements</h3>` + 
-                posts.map(post => {
-                    let mediaHTML = '';
-                    if (post.mediaType === 'image' && post.mediaUrl) {
-                        mediaHTML = `<div class="my-4 rounded-xl overflow-hidden border border-[#e0bd72]/30 max-h-[450px]">
-                            <img src="${escapeHTML(post.mediaUrl)}" class="w-full h-full object-cover" alt="${escapeHTML(post.header)}">
-                        </div>`;
-                    } else if (post.mediaType === 'video' && post.mediaUrl) {
-                        mediaHTML = `<div class="my-4 rounded-xl overflow-hidden border border-[#e0bd72]/30 max-h-[450px]">
-                            <video src="${escapeHTML(post.mediaUrl)}" controls class="w-full h-full object-cover"></video>
-                        </div>`;
-                    }
-
-                    return `
-                        <article class="glass-dark-card p-6 sm:p-8 rounded-[2rem] border border-[#e0bd72]/30 shadow-2xl space-y-4">
-                            <span class="text-[9px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Live Update</span>
-                            <h4 class="font-display text-2xl font-black text-white uppercase">${escapeHTML(post.header)}</h4>
-                            ${mediaHTML}
-                            <p class="text-stone-300 text-xs sm:text-sm leading-relaxed">${escapeHTML(post.subtext)}</p>
-                        </article>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                console.error("Firestore Error:", err);
-                console.log("No dynamic posts loaded; static articles active.");
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                container.innerHTML = `
+                    <span class="inline-flex items-center gap-2 bg-[#0d0d0d] border border-[#e0bd72]/50 text-[#e0bd72] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                        <span class="${data.isLive ? 'animate-pulse text-green-400' : 'text-stone-400'}">●</span> ${escapeHTML(data.message || 'Studio Active')}
+                    </span>
+                `;
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
             }
+        }, (err) => console.error("Status Listener Error:", err));
+    }
+
+    // -----------------------------------------------------------------
+    // 2. LISTEN TO ACTIVE COMMUNITY POLL
+    // -----------------------------------------------------------------
+    function listenToActivePoll() {
+        if (!window.fb || !window.fb.db) {
+            setTimeout(listenToActivePoll, 300);
+            return;
         }
 
-        async function refreshFeed(btn) {
-            const btnText = document.getElementById('refreshBtnText');
-            btn.disabled = true;
-            btnText.innerText = 'Refreshing...';
-            await fetchStudioPosts();
-            btn.disabled = false;
-            btnText.innerText = 'Refresh Live Feed';
+        const { db, collection, query, orderBy, limit, onSnapshot } = window.fb;
+        const pollsRef = collection(db, "polls");
+        const q = query(pollsRef, orderBy("createdAt", "desc"), limit(1));
+
+        onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('activePollContainer');
+            if (!container) return;
+
+            if (snapshot.empty) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const pollDoc = snapshot.docs[0];
+            const pollId = pollDoc.id;
+            const poll = pollDoc.data();
+
+            const totalVotes = poll.totalVotes || 0;
+            const hasVoted = localStorage.getItem(`voted_poll_${pollId}`);
+
+            const optionsHTML = (poll.options || []).map((optionText, index) => {
+                const count = (poll.votes && poll.votes[index]) ? poll.votes[index] : 0;
+                const percentage = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+
+                return `
+                    <div class="space-y-1.5">
+                        <button onclick="voteInPoll('${pollId}', ${index})" ${hasVoted ? 'disabled' : ''} 
+                            class="w-full relative overflow-hidden bg-[#0d0d0d] hover:bg-[#181818] border border-stone-800 hover:border-[#e0bd72]/60 rounded-xl p-3.5 text-left transition-all group disabled:cursor-not-allowed">
+                            
+                            <div class="absolute top-0 left-0 bottom-0 bg-[#e0bd72]/20 transition-all duration-700" style="width: ${percentage}%"></div>
+
+                            <div class="relative z-10 flex justify-between items-center text-xs font-bold">
+                                <span class="text-stone-200 group-hover:text-white">${escapeHTML(optionText)}</span>
+                                <span class="text-[#e0bd72] font-mono">${percentage}% <span class="text-stone-500 text-[10px]">(${count})</span></span>
+                            </div>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="glass-dark-card p-6 sm:p-8 rounded-[2rem] border border-[#e0bd72]/40 shadow-2xl space-y-5">
+                    <div class="flex items-center justify-between border-b border-stone-800 pb-3">
+                        <span class="text-[9px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">
+                            🗳️ Studio Community Poll
+                        </span>
+                        <span class="text-[10px] font-bold text-stone-400">${totalVotes} total votes</span>
+                    </div>
+
+                    <h3 class="font-display text-xl sm:text-2xl font-black text-white uppercase">${escapeHTML(poll.question || 'Poll')}</h3>
+
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+
+                    ${hasVoted ? `<p class="text-[11px] text-[#e0bd72] italic text-center font-semibold">✓ Thanks for voting! Results update in real-time.</p>` : ''}
+                </div>
+            `;
+        }, (err) => console.error("Poll Listener Error:", err));
+    }
+
+    // -----------------------------------------------------------------
+    // 3. SUBMIT VOTE IN POLL
+    // -----------------------------------------------------------------
+    window.voteInPoll = async function(pollId, optionIndex) {
+        if (localStorage.getItem(`voted_poll_${pollId}`)) {
+            alert("You have already voted in this poll!");
+            return;
         }
 
-        function toggleMenu() {
-            document.getElementById('mobileMenu')?.classList.toggle('hidden');
-        }
+        try {
+            const { db, doc, updateDoc, increment } = window.fb;
+            const pollRef = doc(db, "polls", pollId);
 
-        document.addEventListener('DOMContentLoaded', () => {
+            await updateDoc(pollRef, {
+                [`votes.${optionIndex}`]: increment(1),
+                totalVotes: increment(1)
+            });
+
+            localStorage.setItem(`voted_poll_${pollId}`, "true");
+
+        } catch (err) {
+            console.error("Error submitting vote:", err);
+            alert("Failed to submit vote. Please try again.");
+        }
+    };
+
+    // -----------------------------------------------------------------
+    // 4. FETCH STUDIO POSTS & COMMENTS
+    // -----------------------------------------------------------------
+    async function fetchStudioPosts() {
+        const container = document.getElementById('dynamicLiveFeed');
+        if (!container) return;
+
+        if (!window.fb || !window.fb.db) {
             setTimeout(fetchStudioPosts, 300);
+            return;
+        }
+
+        try {
+            const { db, collection, query, orderBy, getDocs } = window.fb;
+
+            const postsRef = collection(db, "posts");
+            const q = query(postsRef, orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
+
+            const posts = [];
+            for (const docSnap of querySnapshot.docs) {
+                const postData = docSnap.data();
+                const postId = docSnap.id;
+
+                const commentsRef = collection(db, "posts", postId, "comments");
+                const commentsQuery = query(commentsRef, orderBy("createdAt", "asc"));
+                const commentsSnap = await getDocs(commentsQuery);
+                
+                const comments = [];
+                commentsSnap.forEach(cDoc => comments.push(cDoc.data()));
+
+                posts.push({ id: postId, ...postData, comments });
+            }
+
+            if (!posts || !posts.length) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `<h3 class="font-display text-xl font-black text-[#0d0d0d] uppercase tracking-wider text-center my-4">Latest Studio Announcements</h3>` + 
+            posts.map(post => {
+                let mediaHTML = '';
+                if (post.mediaType === 'image' && post.mediaUrl) {
+                    mediaHTML = `<div class="my-4 rounded-xl overflow-hidden border border-[#e0bd72]/30 max-h-[450px]">
+                        <img src="${escapeHTML(post.mediaUrl)}" class="w-full h-full object-cover" alt="${escapeHTML(post.header || 'Post Image')}">
+                    </div>`;
+                } else if (post.mediaType === 'video' && post.mediaUrl) {
+                    mediaHTML = `<div class="my-4 rounded-xl overflow-hidden border border-[#e0bd72]/30 max-h-[450px]">
+                        <video src="${escapeHTML(post.mediaUrl)}" controls class="w-full h-full object-cover"></video>
+                    </div>`;
+                }
+
+                const commentsListHTML = (post.comments && post.comments.length > 0) 
+                    ? post.comments.map(c => `
+                        <div class="bg-[#0d0d0d] p-3 rounded-xl border border-stone-800/80 text-xs space-y-1">
+                            <span class="font-bold text-[#e0bd72]">${escapeHTML(c.author || 'Anonymous')}</span>
+                            <p class="text-stone-300 leading-relaxed">${escapeHTML(c.text || '')}</p>
+                        </div>
+                    `).join('')
+                    : `<p class="text-stone-500 text-xs italic">No comments yet. Be the first to comment!</p>`;
+
+                return `
+                    <article class="glass-dark-card p-6 sm:p-8 rounded-[2rem] border border-[#e0bd72]/30 shadow-2xl space-y-4 mb-6">
+                        <span class="text-[9px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Live Update</span>
+                        <h4 class="font-display text-2xl font-black text-white uppercase">${escapeHTML(post.header || 'Untitled Post')}</h4>
+                        ${mediaHTML}
+                        <p class="text-stone-300 text-xs sm:text-sm leading-relaxed">${escapeHTML(post.subtext || '')}</p>
+
+                        <!-- COMMENT SECTION -->
+                        <div class="pt-4 border-t border-stone-800/80 space-y-4">
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-[#e0bd72] flex items-center gap-1.5">
+                                💬 Comments (${post.comments ? post.comments.length : 0})
+                            </h5>
+
+                            <div class="space-y-2.5 max-h-48 overflow-y-auto no-scrollbar">
+                                ${commentsListHTML}
+                            </div>
+
+                            <form onsubmit="addComment(event, '${post.id}')" class="space-y-2 pt-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="author-${post.id}" placeholder="Your Name (Optional)" class="w-1/3 bg-[#0d0d0d] border border-stone-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#e0bd72]">
+                                    <input type="text" id="text-${post.id}" required placeholder="Write a comment..." class="w-2/3 bg-[#0d0d0d] border border-stone-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#e0bd72]">
+                                </div>
+                                <button type="submit" class="w-full bg-[#141414] hover:bg-[#1f1f1f] border border-[#e0bd72]/40 text-[#e0bd72] font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition-all">
+                                    Post Comment
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
             if (window.lucide) window.lucide.createIcons();
+
+        } catch (err) {
+            console.error("Firestore Posts Fetch Error:", err);
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // 5. POST NEW COMMENT
+    // -----------------------------------------------------------------
+    window.addComment = async function(e, postId) {
+        e.preventDefault();
+        const authorInput = document.getElementById(`author-${postId}`);
+        const textInput = document.getElementById(`text-${postId}`);
+
+        const author = authorInput.value.trim() || "Anonymous";
+        const text = textInput.value.trim();
+
+        if (!text) return;
+
+        try {
+            const { db, collection, addDoc, serverTimestamp } = window.fb;
+            
+            await addDoc(collection(db, "posts", postId, "comments"), {
+                author: author,
+                text: text,
+                createdAt: serverTimestamp()
+            });
+
+            authorInput.value = '';
+            textInput.value = '';
+            await fetchStudioPosts();
+
+        } catch (err) {
+            console.error("Error adding comment:", err);
+            alert("Failed to add comment: " + err.message);
+        }
+    };
+
+    window.refreshFeed = async function(btn) {
+        const btnText = document.getElementById('refreshBtnText');
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.innerText = 'Refreshing...';
+        await fetchStudioPosts();
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerText = 'Refresh Live Feed';
+    };
+
+    // -----------------------------------------------------------------
+    // 6. GOOGLE AUTH & MONTHLY LEADERBOARD SYSTEM
+    // -----------------------------------------------------------------
+        window.signInWithGoogle = async function() {
+        if (!window.fb || !window.fb.auth) {
+            alert("Firebase auth is initializing. Please wait a second and try again.");
+            return;
+        }
+        const { auth, GoogleAuthProvider, signInWithRedirect } = window.fb;
+        const provider = new GoogleAuthProvider();
+
+        try {
+            // Uses redirect instead of popup to bypass all browser pop-up blockers
+            await signInWithRedirect(auth, provider);
+        } catch (error) {
+            console.error("Google Auth Error:", error);
+            alert("Sign-in failed: " + error.message);
+        }
+    };
+
+        
+
+    window.logoutGoogle = function() {
+        if (window.fb && window.fb.auth) {
+            window.fb.auth.signOut();
+        }
+    };
+
+    function updateUserUICard(user, stats) {
+        const photoEl = document.getElementById('userPhoto');
+        const nameEl = document.getElementById('userName');
+        const pointsEl = document.getElementById('userPoints');
+        const visitsEl = document.getElementById('userVisits');
+
+        if (photoEl) photoEl.src = user.photoURL || 'https://via.placeholder.com/40';
+        if (nameEl) nameEl.innerText = user.displayName || 'Fan';
+        if (pointsEl) pointsEl.innerText = stats.points || 10;
+        if (visitsEl) visitsEl.innerText = stats.visits || 1;
+    }
+
+    async function processUserVisit(user) {
+        if (!window.fb || !window.fb.db) return;
+        const { db, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } = window.fb;
+        
+        const monthKey = getMonthKey();
+        const userRef = doc(db, "monthly_leaderboard", `${monthKey}_${user.uid}`);
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        try {
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) {
+                const initialStats = {
+                    uid: user.uid,
+                    displayName: user.displayName || 'Anonymous Fan',
+                    photoURL: user.photoURL || 'https://via.placeholder.com/40',
+                    points: 10,
+                    visits: 1,
+                    lastVisitDate: todayStr,
+                    monthKey: monthKey,
+                    updatedAt: serverTimestamp()
+                };
+                await setDoc(userRef, initialStats);
+                updateUserUICard(user, initialStats);
+            } else {
+                const data = userSnap.data();
+                if (data.lastVisitDate !== todayStr) {
+                    const newPoints = (data.points || 0) + 10;
+                    const newVisits = (data.visits || 0) + 1;
+                    await updateDoc(userRef, {
+                        points: increment(10),
+                        visits: increment(1),
+                        displayName: user.displayName || data.displayName,
+                        photoURL: user.photoURL || data.photoURL,
+                        lastVisitDate: todayStr,
+                        updatedAt: serverTimestamp()
+                    });
+                    updateUserUICard(user, { points: newPoints, visits: newVisits });
+                } else {
+                    updateUserUICard(user, data);
+                }
+            }
+        } catch (err) {
+            console.error("Error processing user visit:", err);
+            updateUserUICard(user, { points: 0, visits: 0 });
+        }
+    }
+
+    function initAuthListener() {
+        if (!window.fb || !window.fb.auth) {
+            setTimeout(initAuthListener, 300);
+            return;
+        }
+
+        const { auth, onAuthStateChanged } = window.fb;
+        onAuthStateChanged(auth, async (user) => {
+            const loginBtn = document.getElementById('loginBtn');
+            const userInfo = document.getElementById('userInfo');
+
+            if (user) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userInfo) userInfo.classList.remove('hidden');
+                updateUserUICard(user, { points: '...', visits: '...' });
+                await processUserVisit(user);
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (userInfo) userInfo.classList.add('hidden');
+            }
         });
-    </script>
+    }
+
+    function listenToLeaderboard() {
+        if (!window.fb || !window.fb.db) {
+            setTimeout(listenToLeaderboard, 300);
+            return;
+        }
+
+        const { db, collection, query, where, orderBy, limit, onSnapshot } = window.fb;
+        const monthKey = getMonthKey();
+
+        const q = query(
+            collection(db, "monthly_leaderboard"),
+            where("monthKey", "==", monthKey),
+            orderBy("points", "desc"),
+            limit(10)
+        );
+
+        onSnapshot(q, (snapshot) => {
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (!leaderboardList) return;
+
+            if (snapshot.empty) {
+                leaderboardList.innerHTML = `<p class="text-stone-500 text-xs text-center py-4">No points logged yet this month. Sign in to take #1!</p>`;
+                return;
+            }
+
+            let rank = 1;
+            let html = '';
+            snapshot.forEach((docSnap) => {
+                const fan = docSnap.data();
+                const badgeColor = rank === 1 ? 'bg-[#e0bd72] text-black font-black' : (rank === 2 ? 'bg-stone-300 text-black' : (rank === 3 ? 'bg-amber-700 text-white' : 'bg-stone-800 text-stone-400'));
+
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-stone-800/80 rounded-xl border border-stone-700/50">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full ${badgeColor} text-xs flex items-center justify-center">${rank}</span>
+                            <img src="${escapeHTML(fan.photoURL || 'https://via.placeholder.com/40')}" class="w-8 h-8 rounded-full border border-stone-600" />
+                            <span class="font-bold text-sm text-stone-100">${escapeHTML(fan.displayName || 'Anonymous Fan')}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-[#e0bd72]">${fan.points || 0} pts</span>
+                            <span class="text-[10px] text-stone-400 block">${fan.visits || 0} visits</span>
+                        </div>
+                    </div>
+                `;
+                rank++;
+            });
+
+            leaderboardList.innerHTML = html;
+        }, (err) => {
+            console.error("Leaderboard Firestore Query Error:", err);
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (leaderboardList) {
+                leaderboardList.innerHTML = `<p class="text-stone-500 text-xs text-center py-4">Requires Firestore Index. Check console logs for link.</p>`;
+            }
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // DOM INITIALIZER
+    // -----------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        setMonthLabel();
+        listenToStudioStatus();
+        listenToActivePoll();
+        fetchStudioPosts();
+        initAuthListener();
+        listenToLeaderboard();
+    });
+</script>
+
+
+
 </body>
 </html>

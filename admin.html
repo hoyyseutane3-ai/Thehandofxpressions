@@ -31,7 +31,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(window.__firebase_config);
         const app = initializeApp(firebaseConfig);
@@ -39,7 +39,7 @@
         const db = getFirestore(app);
         const appId = window.__app_id || 'thehandofxpressions';
 
-        window.fb = { auth, db, appId, collection, addDoc, onSnapshot, query, serverTimestamp, signInAnonymously };
+        window.fb = { auth, db, appId, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, signInAnonymously };
     </script>
     
     <style>
@@ -60,18 +60,25 @@
             border: 1px solid rgba(224, 189, 114, 0.25);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-6 antialiased">
+<body class="min-h-screen flex flex-col items-center justify-start p-4 sm:p-8 antialiased space-y-8">
 
-  <div class="w-full max-w-xl glass-dark-card p-8 rounded-[2rem] text-white shadow-2xl">
-    <div class="border-b border-stone-800 pb-4 mb-6">
-        <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Studio Admin</span>
-        <h2 class="text-2xl font-display font-black text-white uppercase mt-2">Publish Studio Post</h2>
+  <!-- 1. PUBLISH STUDIO POST -->
+  <div class="w-full max-w-xl glass-dark-card p-6 sm:p-8 rounded-[2rem] text-white shadow-2xl">
+    <div class="border-b border-stone-800 pb-4 mb-6 flex justify-between items-center">
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Studio Admin</span>
+            <h2 class="text-2xl font-display font-black text-white uppercase mt-2">Publish Studio Post</h2>
+        </div>
+        <span class="text-2xl">🎨</span>
     </div>
     
-    <form id="adminPostForm" class="space-y-5">
+    <form id="adminPostForm" class="space-y-4">
       <div>
         <label class="block text-xs font-bold uppercase tracking-wider text-stone-300 mb-2">Title / Artwork Name</label>
         <input type="text" id="postHeader" required placeholder="e.g., Character Sketch #4" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-3 text-xs text-white outline-none transition-all">
@@ -87,17 +94,90 @@
         <input type="file" id="mediaFileInput" accept="image/*,video/*" class="w-full bg-[#0d0d0d] border border-stone-800 rounded-xl p-2 text-xs text-stone-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#e0bd72] file:text-black hover:file:bg-[#d0ad62] cursor-pointer">
       </div>
 
-      <button type="submit" id="submitBtn" class="w-full py-3.5 bg-gradient-to-r from-[#e0bd72] via-[#f7e3b5] to-[#c9a054] text-black font-black rounded-xl hover:scale-[1.01] active:scale-95 transition-all shadow-lg mt-2 text-xs uppercase tracking-widest">
+      <button type="submit" id="submitBtn" class="w-full py-3.5 bg-gradient-to-r from-[#e0bd72] via-[#f7e3b5] to-[#c9a054] text-black font-black rounded-xl hover:scale-[1.01] active:scale-95 transition-all shadow-lg text-xs uppercase tracking-widest">
         Publish Post 🚀
       </button>
     </form>
+  </div>
+
+  <!-- 2. STUDIO LIVE STATUS CONTROLLER -->
+  <div class="w-full max-w-xl glass-dark-card p-6 sm:p-8 rounded-[2rem] text-white shadow-2xl">
+    <div class="border-b border-stone-800 pb-4 mb-4 flex justify-between items-center">
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Live Badge</span>
+            <h2 class="text-xl font-display font-black text-white uppercase mt-1">Studio Status Controller</h2>
+        </div>
+        <span class="text-2xl">⚡</span>
+    </div>
+
+    <div class="space-y-3">
+        <label class="block text-xs font-bold uppercase tracking-wider text-stone-300">Set Current Studio Status Message</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button onclick="updateStudioStatus('✏️ Live Shading in Studio', true)" class="bg-[#0d0d0d] hover:bg-[#1f1f1f] border border-stone-800 hover:border-[#e0bd72] p-3 rounded-xl text-xs font-bold text-stone-200 transition-all text-center">
+                🟢 Live Shading
+            </button>
+            <button onclick="updateStudioStatus('📥 Taking New Commissions', true)" class="bg-[#0d0d0d] hover:bg-[#1f1f1f] border border-stone-800 hover:border-[#e0bd72] p-3 rounded-xl text-xs font-bold text-stone-200 transition-all text-center">
+                🟡 Open for Orders
+            </button>
+            <button onclick="updateStudioStatus('🔴 Studio Closed', false)" class="bg-[#0d0d0d] hover:bg-[#1f1f1f] border border-stone-800 hover:border-red-500/50 p-3 rounded-xl text-xs font-bold text-stone-200 transition-all text-center">
+                🔴 Studio Offline
+            </button>
+        </div>
+        <p id="statusOutput" class="text-[11px] text-stone-400 italic mt-2">Current Status: Syncing with Firestore...</p>
+    </div>
+  </div>
+
+  <!-- 3. CREATE COMMUNITY POLL -->
+  <div class="w-full max-w-xl glass-dark-card p-6 sm:p-8 rounded-[2rem] text-white shadow-2xl">
+    <div class="border-b border-stone-800 pb-4 mb-6 flex justify-between items-center">
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Engagement</span>
+            <h2 class="text-2xl font-display font-black text-white uppercase mt-2">Create Community Poll</h2>
+        </div>
+        <span class="text-2xl">🗳️</span>
+    </div>
+
+    <form id="createPollForm" class="space-y-4">
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-stone-300 mb-2">Poll Question</label>
+            <input type="text" id="pollQuestion" required placeholder="e.g., What portrait subject should I draw next?" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-3 text-xs text-white outline-none transition-all">
+        </div>
+
+        <div class="space-y-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-stone-300">Poll Options</label>
+            <input type="text" id="pollOpt0" required placeholder="Option 1 (e.g., Real Madrid Champions League Trophy)" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-2.5 text-xs text-white outline-none">
+            <input type="text" id="pollOpt1" required placeholder="Option 2 (e.g., Mbappé Hyper-Realistic Charcoal)" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-2.5 text-xs text-white outline-none">
+            <input type="text" id="pollOpt2" placeholder="Option 3 (Optional)" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-2.5 text-xs text-white outline-none">
+            <input type="text" id="pollOpt3" placeholder="Option 4 (Optional)" class="w-full bg-[#0d0d0d] border border-stone-800 focus:border-[#e0bd72] rounded-xl p-2.5 text-xs text-white outline-none">
+        </div>
+
+        <button type="submit" id="submitPollBtn" class="w-full py-3.5 bg-gradient-to-r from-[#e0bd72] via-[#f7e3b5] to-[#c9a054] text-black font-black rounded-xl hover:scale-[1.01] active:scale-95 transition-all shadow-lg text-xs uppercase tracking-widest">
+            Launch Live Poll 🗳️
+        </button>
+    </form>
+  </div>
+
+  <!-- 4. MANAGE & DELETE LIVE POSTS -->
+  <div class="w-full max-w-xl glass-dark-card p-6 sm:p-8 rounded-[2rem] text-white shadow-2xl">
+    <div class="border-b border-stone-800 pb-4 mb-4 flex justify-between items-center">
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#e0bd72] bg-[#0d0d0d] px-3 py-1 rounded-full border border-[#e0bd72]/30">Management</span>
+            <h2 class="text-xl font-display font-black text-white uppercase mt-1">Live Posts Overview</h2>
+        </div>
+        <span class="text-2xl">🗑️</span>
+    </div>
+
+    <div id="postsListContainer" class="space-y-3 max-h-80 overflow-y-auto no-scrollbar">
+        <p class="text-xs text-stone-400 italic">Loading live posts...</p>
+    </div>
   </div>
 
 <script>
   const CLOUDINARY_CLOUD_NAME = "depkj7qng";
   const CLOUDINARY_PRESET = "picture-upload";
 
-  document.getElementById('adminPostForm').addEventListener('submit', async (e) => {
+  // 1. HANDLE POST PUBLISHING
+  document.getElementById('adminPostForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     const fileInput = document.getElementById('mediaFileInput');
@@ -107,30 +187,26 @@
     let mediaType = "none";
 
     try {
-      // 1. If a file was picked, upload it to Cloudinary first
       if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         mediaType = file.type.startsWith('video/') ? 'video' : 'image';
-        
         btn.innerText = "Uploading Media to Cloudinary...";
         
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', CLOUDINARY_PRESET);
 
-       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, 
- {
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
           method: 'POST',
           body: formData
         });
 
         const uploadData = await uploadRes.json();
-        if (!uploadData.secure_url) throw new Error("Image upload to Cloudinary failed.");
+        if (!uploadData.secure_url) throw new Error("Media upload to Cloudinary failed.");
         
         uploadedMediaUrl = uploadData.secure_url;
       }
 
-      // 2. Save post directly to Firebase Firestore
       btn.innerText = "Saving to Firebase...";
 
       if (!window.fb || !window.fb.db) {
@@ -157,6 +233,123 @@
       btn.disabled = false;
       btn.innerText = "Publish Post 🚀";
     }
+  });
+
+  // 2. HANDLE COMMUNITY POLL CREATION
+  document.getElementById('createPollForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitPollBtn');
+    btn.disabled = true;
+    btn.innerText = "Launching Poll...";
+
+    try {
+        const question = document.getElementById('pollQuestion').value.trim();
+        const rawOptions = [
+            document.getElementById('pollOpt0').value.trim(),
+            document.getElementById('pollOpt1').value.trim(),
+            document.getElementById('pollOpt2').value.trim(),
+            document.getElementById('pollOpt3').value.trim()
+        ].filter(opt => opt.length > 0);
+
+        if (rawOptions.length < 2) {
+            alert("Please provide at least 2 options for the poll.");
+            return;
+        }
+
+        const votesObj = {};
+        rawOptions.forEach((_, index) => { votesObj[index] = 0; });
+
+        const { db, collection, addDoc, serverTimestamp } = window.fb;
+
+        await addDoc(collection(db, "polls"), {
+            question: question,
+            options: rawOptions,
+            votes: votesObj,
+            totalVotes: 0,
+            active: true,
+            createdAt: serverTimestamp()
+        });
+
+        alert("Live Poll published successfully!");
+        document.getElementById('createPollForm').reset();
+
+    } catch (err) {
+        console.error("Error creating poll:", err);
+        alert("Failed to create poll: " + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Launch Live Poll 🗳️";
+    }
+  });
+
+  // 3. HANDLE STUDIO STATUS UPDATES
+  async function updateStudioStatus(statusText, isLive) {
+      const output = document.getElementById('statusOutput');
+      output.innerText = "Updating studio status...";
+      try {
+          const { db, doc, setDoc, serverTimestamp } = window.fb;
+          await setDoc(doc(db, "studio", "status"), {
+              message: statusText,
+              isLive: isLive,
+              updatedAt: serverTimestamp()
+          });
+          output.innerText = `Current Status: "${statusText}"`;
+      } catch (err) {
+          console.error("Status update error:", err);
+          output.innerText = "Failed to update status.";
+      }
+  }
+
+  // 4. LISTEN AND MANAGE LIVE POSTS (DELETE FUNCTION)
+  function initLivePostsOverview() {
+      if (!window.fb || !window.fb.db) {
+          setTimeout(initLivePostsOverview, 400);
+          return;
+      }
+
+      const { db, collection, query, orderBy, onSnapshot } = window.fb;
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+      onSnapshot(q, (snapshot) => {
+          const container = document.getElementById('postsListContainer');
+          if (!container) return;
+
+          if (snapshot.empty) {
+              container.innerHTML = `<p class="text-xs text-stone-500 italic">No posts in Firestore.</p>`;
+              return;
+          }
+
+          container.innerHTML = snapshot.docs.map(docSnap => {
+              const data = docSnap.data();
+              const id = docSnap.id;
+              return `
+                  <div class="flex items-center justify-between bg-[#0d0d0d] p-3 rounded-xl border border-stone-800 text-xs">
+                      <div class="truncate pr-2">
+                          <p class="font-bold text-white truncate">${data.header || 'Untitled'}</p>
+                          <p class="text-[10px] text-stone-400 capitalize">${data.mediaType || 'Text Only'}</p>
+                      </div>
+                      <button onclick="deletePost('${id}')" class="bg-red-950/80 hover:bg-red-800 text-red-200 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-red-800/50 transition-all shrink-0">
+                          Delete
+                      </button>
+                  </div>
+              `;
+          }).join('');
+      });
+  }
+
+  async function deletePost(postId) {
+      if (!confirm("Are you sure you want to delete this post?")) return;
+      try {
+          const { db, doc, deleteDoc } = window.fb;
+          await deleteDoc(doc(db, "posts", postId));
+          alert("Post deleted successfully.");
+      } catch (err) {
+          alert("Error deleting post: " + err.message);
+      }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      initLivePostsOverview();
   });
 </script>
 
